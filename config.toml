@@ -1,0 +1,136 @@
+baseURL = "https://www.ccammack.com"
+title = "Chris Cammack"
+
+# for smart copyright line, leave this blank and check [params.copyright]
+copyright = ""
+
+theme = "minimo"
+
+disqusShortname = ""
+googleAnalytics = ""
+
+# Pagination ... default = 10
+Paginate = 99
+preserveTaxonomyNames = true
+
+enableRobotsTXT = true # generate robots.txt
+
+# Syntax Highlighting ( https://gohugo.io/content-management/syntax-highlighting/ )
+pygmentsCodefences = true
+
+# Enable use of emojis in content files
+enableEmoji = false
+
+# Missing translations will default to this content language
+defaultContentLanguage = "en"
+
+[params.info]
+description = ""
+title404 = "Error: 404"
+
+[params.assets]
+favicon = "favicon.ico"
+customCSS = ["css/custom.css"]
+customJS = ["js/custom.js"]
+gopher = "" # used in 404 template ( Generator: https://gopherize.me )
+
+[params.copyright]
+prefix = ""
+holder = "Chris Cammack"
+startYear = "2018"
+suffix = ""
+
+[params.settings]
+# date & time format: https://golang.org/pkg/time/
+dateFormat = "02 January 2006"
+listDateFormat = "02 Jan 2006"
+archiveDateFormat = "Jan 02"
+hideEntryNavigation = ["page"] # boolean / array of sections
+showReadingTime = false
+taxonomyCloudShuffle = true
+accentColor = "#66CCFF"
+hideMainMenu = false
+hideSocialMenu = false
+noTermCloudShuffle = true
+
+[params.sidebar]
+enable = false
+
+[params.widgets]
+homepage = ["recent_posts"]
+sidebar = ["about","taxonomy_cloud"]
+footer = ["social_menu"]
+
+[params.seo]
+# Title Separator: - – — · • * ⋆ | ~ « » < >
+titleSeparator = "•"
+
+[params.social]
+github = "ccammack"
+#email = "admin@ccammack.com"
+linkedin = "ccammack"
+
+#[params.social.config]
+#platforms = ["github","linkedin","email"]
+
+[params.comments]
+enable = false
+
+#[params.comments.staticman]
+#enable = true
+#apiEndpoint = "https://api.staticman.net/v2/entry"
+#maxDepth = 2
+
+#[params.comments.staticman.github]
+#username = "MunifTanjim"
+#repository = "minimo"
+#branch = "master"
+
+[taxonomies]
+#author = "authors"
+#category = "categories"
+#series = "series"
+tag = "tags"
+
+[permalinks]
+page = "/:slug/"
+posts = "/:slug/"
+
+[[menu.main]]
+name = "Home"
+weight = 1
+identifier = "Home"
+url = "/"
+
+[[menu.main]]
+name = "Posts"
+weight = 20
+identifier = "posts"
+url = "/post/"
+
+[[menu.main]]
+name = "RSS"
+weight = 99
+identifier = "rss"
+url = "/feed.xml"
+
+[blackfriday]
+hrefTargetBlank = true
+
+[languages]
+[languages.en]
+lang = "en"
+languageName = "English"
+weight = 1
+
+# rss
+[outputFormats]
+[outputFormats.RSS]
+mediatype = "application/rss"
+baseName = "feed"
+
+rssLimit = 99
+
+[author]
+name = "Chris Cammack"
+email = "admin@ccammack.com"
