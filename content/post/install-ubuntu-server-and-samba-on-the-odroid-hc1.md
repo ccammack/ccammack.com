@@ -2,7 +2,6 @@
 title: "Install Ubuntu Server and Samba on the ODROID-HC1"
 date: 2019-02-02T09:51:04-08:00
 tags: ["NAS", "ODROID", "Ubuntu"]
-draft: true
 ---
 
 The [ODROID-HC1](https://www.hardkernel.com/shop/odroid-hc1-home-cloud-one/) is a simplified version of the
