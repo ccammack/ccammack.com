@@ -4,7 +4,7 @@ date: 2018-05-21T04:15:51-07:00
 tags: ["FreeBSD", "Windows", "SSH"]
 ---
 
-{{< figure src="/img/install-freebsd-on-a-headless-server-over-ssh/beastie-van.png" alt="Handyman van painted with FreeBSD logo" caption="Pacific Heights, San Francisco">}}
+{{< figure src="/img/install-freebsd-on-a-headless-server-over-ssh/beastie-van.jpg" alt="Handyman van painted with FreeBSD logo" caption="Pacific Heights, San Francisco">}}
 
 It can be inconvenient to connect a keyboard and monitor to a headless server tucked away in a closet just to install an operating system. 
 Instead, use [VirtualBox](https://www.virtualbox.org/) to make a small number of changes to a [FreeBSD](https://www.freebsd.org/) installer image and use SSH to do the installation over the LAN.
