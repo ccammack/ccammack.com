@@ -5,7 +5,7 @@ tags: ["NAS", "ODROID", "Ubuntu"]
 ---
 
 The [ODROID-HC1](https://www.hardkernel.com/shop/odroid-hc1-home-cloud-one/) is a simplified version of the
-[ODROID-XU4](https://www.hardkernel.com/shop/odroid-xu4-special-price/) single-board computer that been designed for use as a small headless server.
+[ODROID-XU4](https://www.hardkernel.com/shop/odroid-xu4-special-price/) single-board computer that has been designed for use as a small headless server.
 It includes a built-in SATA connector and comes mounted in a stackable aluminum frame that acts both as a heat sink for the CPU and as a mount point for a 2.5" hard drive or SSD.
 
 <!--more-->
@@ -30,7 +30,7 @@ there may be something wrong with the SD card or the image itself if the blue LE
 Make sure the card is properly seated and reburn the image or switch cards if necessary.
 
 1. The release notes indicate that the first cold boot might take more than 5 minutes, depending on the microSD card and installed OS.
-After a few minutes, run [ipscan](https://angryip.org/) or check the DHCP Reservations List on the [router](http://192.168.0.1) to find the IP address that has been assigned to the ODROID device.
+After a few minutes, run [ipscan](https://angryip.org/) or check the DHCP reservations list on the [router](http://192.168.0.1) to find the IP address that has been assigned to the ODROID device.
 In my case, the router assigned **192.168.0.110**.
 
 1. Eventually, it should be possible to SSH into the IP assigned to the device as the root user (ssh **root**@IP) with the default password (**odroid**).
