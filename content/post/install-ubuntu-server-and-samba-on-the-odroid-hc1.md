@@ -115,7 +115,7 @@ ccammack@odroid:~$
 	{{< highlight txt >}}
 ccammack@odroid:~$ exit
 logout
-root@odroid:~# passwd -l root
+root@odroid:~# passwd -dl root
 passwd: password expiry information changed.
 root@odroid:~# exit
 logout
