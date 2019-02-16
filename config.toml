@@ -66,8 +66,8 @@ footer = ["social_menu"]
 titleSeparator = "•"
 
 [params.social]
+email = "chris@ccammack.com"
 github = "ccammack"
-#email = "admin@ccammack.com"
 linkedin = "ccammack"
 
 #[params.social.config]
