@@ -2,7 +2,6 @@
 title: "Create VNET Jails in FreeBSD 12 Using iocage"
 date: 2019-07-09T19:14:43-07:00
 tags: ["FreeBSD", "iocage", "jails"]
-draft: true
 ---
 
 [FreeBSD 12](https://www.freebsd.org/) enables VNET support by default, which gives each jail its own network stack and makes it easy to jail individual applications using [iocage](https://iocage.io/).
