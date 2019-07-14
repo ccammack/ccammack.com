@@ -245,6 +245,8 @@ To create a tiny web server inside the jail for testing, *make sure the rc.d fol
 {{< highlight txt >}}
 # iocage exec j1 mkdir -p /usr/local/etc/rc.d
 # echo 'while true ; do echo -e "HTTP/1.1 200 OK\n\n`hostname`: `date`" | nc -l 8080 -N ; done' > /zroot/iocage/jails/j1/root/usr/local/etc/rc.d/one-line-web-server.sh
+# iocage exec j1 cat /usr/local/etc/rc.d/one-line-web-server.sh
+while true ; do echo -e "HTTP/1.1 200 OK\n\n`hostname`: `date`" | nc -l 8080 -N ; done
 # iocage exec j1 chmod +x /usr/local/etc/rc.d/one-line-web-server.sh
 # reboot
 {{< /highlight >}}
