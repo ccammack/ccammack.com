@@ -24,7 +24,7 @@ C:\Programs\capture> start C:\Programs\capture
 
 1. Download the [static Windows build of FFmpeg](https://ffmpeg.zeranoe.com/builds/) and open the downloaded file.
 Drill down the folder tree to find the **bin** directory, then copy **ffmpeg.exe** and **ffprobe.exe** to **C:\Programs\capture**.
-{{< figure src="/img/create-wrapper-scripts-for-youtube-dl/capture-folder-in-windows-explorer.png" alt="Windows explorer window showing the folder C:\Programs\capture.">}}
+{{< figure src="capture-folder-in-windows-explorer.png" alt="Windows explorer window showing the folder C:\Programs\capture.">}}
 
 #### Capture MP4 Video
 
@@ -68,7 +68,7 @@ youtube-dl is up-to-date (2018.06.02)
 {{< /highlight >}}
 
 1. Find the downloaded MP4 video file in **C:\Programs\capture\capture.mp4**.
-{{< figure src="/img/create-wrapper-scripts-for-youtube-dl/official-rick-astley-mp4.png" alt="Windows explorer window showing the downloaded file.">}}
+{{< figure src="official-rick-astley-mp4.png" alt="Windows explorer window showing the downloaded file.">}}
 
 #### Capture MP3 Audio
 
@@ -112,4 +112,4 @@ Deleting original file Rick Astley - Never Gonna Give You Up (Video)-dQw4w9WgXcQ
 {{< /highlight >}}
 
 1. Find the downloaded MP3 audio file in **C:\Programs\capture\capture.mp3**.
-{{< figure src="/img/create-wrapper-scripts-for-youtube-dl/official-rick-astley-mp3.png" alt="Windows explorer window showing the downloaded file.">}}
+{{< figure src="official-rick-astley-mp3.png" alt="Windows explorer window showing the downloaded file.">}}

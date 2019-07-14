@@ -4,7 +4,7 @@ date: 2018-05-21T04:15:51-07:00
 tags: ["FreeBSD", "Windows", "SSH"]
 ---
 
-{{< figure src="/img/install-freebsd-on-a-headless-server-over-ssh/beastie-van.jpg" alt="Handyman van painted with FreeBSD logo" caption="Pacific Heights, San Francisco">}}
+{{< figure src="beastie-van.jpg" alt="Handyman van painted with FreeBSD logo" caption="Pacific Heights, San Francisco">}}
 
 It can be inconvenient to connect a keyboard and monitor to a headless server tucked away in a closet just to install an operating system. 
 Instead, use [VirtualBox](https://www.virtualbox.org/) to make a small number of changes to a [FreeBSD](https://www.freebsd.org/) installer image and use SSH to do the installation over the LAN.
@@ -45,7 +45,7 @@ Ping statistics for 192.168.0.254:
 	{{< /highlight >}}
 
 1. Use [Win32 Disk Imager](https://sourceforge.net/projects/win32diskimager/) or [Etcher](https://etcher.io/) to burn the **memstick** image to USB.
-{{< figure src="/img/install-freebsd-on-a-headless-server-over-ssh/use-win32-disk-imager.png" alt="Use Win32 Disk Imager to burn the memstick image to USB">}}
+{{< figure src="use-win32-disk-imager.png" alt="Use Win32 Disk Imager to burn the memstick image to USB">}}
 
 1. Use the command line version of VirtualBox to create a FreeBSD VM and mount the **bootonly.iso** file.
 	{{< highlight txt >}}
@@ -72,18 +72,18 @@ Waiting for VM "freebsd" to power on...
 VM "freebsd" has been successfully started.
 	{{< /highlight >}}
 
-	{{< figure src="/img/install-freebsd-on-a-headless-server-over-ssh/freebsd-welcome-screen.png" alt="FreeBSD Installer Welcome Screen">}}
+	{{< figure src="freebsd-welcome-screen.png" alt="FreeBSD Installer Welcome Screen">}}
 
 1. Press the **Esc** key to exit the installer and login as **root**.
-	{{< figure src="/img/install-freebsd-on-a-headless-server-over-ssh/login-as-root.png" alt="Press the [Esc] key and login as root">}}
+	{{< figure src="login-as-root.png" alt="Press the [Esc] key and login as root">}}
 
 1. Press the **Right Ctrl** key to get mouse control back, then open the VirtualBox menu for **Devices>USB Devices** and select the USB drive with the **memstick** image on it.
 If the USB drive does not appear in the menu, remove it and re-insert it.
-	{{< figure src="/img/install-freebsd-on-a-headless-server-over-ssh/attaching-usb-memstick.png" alt="Use the VirtualBox menu to attach the USB memstick">}}
+	{{< figure src="attaching-usb-memstick.png" alt="Use the VirtualBox menu to attach the USB memstick">}}
 
 1. The USB drive will attach to the VM within in a few seconds and the device info will appear in the console in bold white text.
 In this example, the device name appears as **da0**. Press **Enter** to get the command prompt back.
-	{{< figure src="/img/install-freebsd-on-a-headless-server-over-ssh/attached-usb-memstick.png" alt="After attaching the USB memstick to VirtualBox">}}
+	{{< figure src="attached-usb-memstick.png" alt="After attaching the USB memstick to VirtualBox">}}
 
 1. To list the partitions on the USB drive, enter **mount /dev/da0** and press the **Tab** key to display them using shell completion.
 	{{< highlight txt >}}
@@ -174,8 +174,8 @@ root@:~ # bsdinstall
 
 	Some terminals might not have the proper settings to display ACS lines correctly when running the installer, but the installation process will still work even if the screen doesn't look right.
 	In my case, running SSH under **CMD inside Cmder** didn't display properly, but running SSH under **mintty inside Cmder** displayed perfectly.
-{{< figure src="/img/install-freebsd-on-a-headless-server-over-ssh/run-bsdinstall-cmd.png" caption="Running CMD inside Cmder fails to display ACS lines properly">}}
-{{< figure src="/img/install-freebsd-on-a-headless-server-over-ssh/run-bsdinstall-mintty.png" caption="Running mintty inside Cmder displays ACS lines perfectly">}}
+{{< figure src="run-bsdinstall-cmd.png" caption="Running CMD inside Cmder fails to display ACS lines properly">}}
+{{< figure src="run-bsdinstall-mintty.png" caption="Running mintty inside Cmder displays ACS lines perfectly">}}
 
 1. After the installation finishes, shutdown the server, remove the USB thumb drive and reboot.
 If you elected to use DHCP or assigned a static IP address to the server during the installation, the system will have a new IP address after restarting.

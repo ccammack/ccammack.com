@@ -20,10 +20,10 @@ Many [open-source self-hosted web-based feed readers](https://en.wikipedia.org/w
 	* Right-click anywhere on the web page and select **Save as...**
 	* Set the **Save as type** to **All Files**
 	* Save the file as **C:\Programs\CommaFeed\config.yml** (remove any extraneous **.example** and **.txt** extensions)
-{{< figure src="/img/install-commafeed-reader-on-windows/save-config-yml.png" alt="Save configuration file">}}
+{{< figure src="save-config-yml.png" alt="Save configuration file">}}
 	
 1. Open **C:\Programs\CommaFeed** in Windows Explorer
-{{< figure src="/img/install-commafeed-reader-on-windows/commafeed-folder.png" alt="Commafeed folder in Windows explorer">}}
+{{< figure src="commafeed-folder.png" alt="Commafeed folder in Windows explorer">}}
 
 1. Right-click **C:\Programs\CommaFeed\commafeed.jar** and select **Create shortcut** to create a shortcut
 
@@ -33,16 +33,16 @@ Many [open-source self-hosted web-based feed readers](https://en.wikipedia.org/w
 	* **Run:**
     Minimized
 	* Press the **OK** button
-	{{< figure src="/img/install-commafeed-reader-on-windows/commafeed-shortcut-properties.png" alt="CommaFeed shortcut properties">}}
+	{{< figure src="commafeed-shortcut-properties.png" alt="CommaFeed shortcut properties">}}
 
 1. Double-click the shortcut **C:\Programs\CommaFeed\commafeed.jar - Shortcut** to run the server and press the **Allow access** button if a firewall warning appears
-{{< figure src="/img/install-commafeed-reader-on-windows/windows-security-alert.png" alt="Windows firewall security alert">}}
+{{< figure src="windows-security-alert.png" alt="Windows firewall security alert">}}
 
 1. Open http://localhost:8082 and login with user: **admin** and password: **admin**
 
 1. To run CommaFeed automatically when Windows starts
 	* Open **C:\Programs\CommaFeed** in Windows Explorer
 	* Open the **Start** menu and type **shell:startup** to open the startup folder
-{{< figure src="/img/install-commafeed-reader-on-windows/shell-startup.png" alt="Open the startup folder">}}
+{{< figure src="shell-startup.png" alt="Open the startup folder">}}
 	* Drag and drop the shortcut **C:\Programs\CommaFeed\commafeed.jar - Shortcut** into the startup folder
     * Commafeed will now run automatically when Windows starts

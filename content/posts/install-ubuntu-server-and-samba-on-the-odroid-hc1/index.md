@@ -10,7 +10,7 @@ It includes a built-in SATA connector and comes mounted in a stackable aluminum 
 
 <!--more-->
 
-{{< figure src="/img/install-ubuntu-server-and-samba-on-the-odroid-hc1/odroid-hc1.jpg" alt="ODROID-HC1 with U.S. quarter for scale">}}
+{{< figure src="odroid-hc1.jpg" alt="ODROID-HC1 with U.S. quarter for scale">}}
 
 Software options include [Android, Ubuntu, Armbian, Open Media Vault (OMV) and several others](https://wiki.odroid.com/odroid-xu4/os_images/os_images),
 but I used the minimal build of [Ubuntu Server 18.04](https://wiki.odroid.com/odroid-xu4/os_images/linux/ubuntu_4.14/ubuntu_4.14).
@@ -21,7 +21,7 @@ Armbian probably makes system configuration easier, and OMV provides a full NAS 
 1. Download the latest [Ubuntu 18.04 (MINIMAL, BARE OS) image](https://odroid.in/ubuntu_18.04lts/ubuntu-18.04.1-4.14-minimal-odroid-xu4-20181203.img.xz) from
 the [ODROID Ubuntu Kernel 4.14 repository](https://wiki.odroid.com/odroid-xu4/os_images/linux/ubuntu_4.14/ubuntu_4.14)
 and burn it to a microSD card using [Etcher](https://www.balena.io/etcher/).
-{{< figure src="/img/install-ubuntu-server-and-samba-on-the-odroid-hc1/burn-ubuntu-image-using-etcher.png" alt="Burn the Ubuntu image to the microSD card using Etcher">}}
+{{< figure src="burn-ubuntu-image-using-etcher.png" alt="Burn the Ubuntu image to the microSD card using Etcher">}}
 
 1. Install the microSD card in the device with the pins down and label up, then plug in the LAN cable followed by the power cable.
 The red, green and blue LEDs should all light up as the machine boots, and then the blue LED should flash as the OS loads.
@@ -179,7 +179,7 @@ For example, using **nano** to edit the configuration file looks like this. When
 	{{< highlight txt >}}
 ccammack@odroid:~$ sudo nano /etc/netplan/01-netcfg.yaml
 {{< /highlight >}}
-{{< figure src="/img/install-ubuntu-server-and-samba-on-the-odroid-hc1/configure-netplan.png" alt="Edit netplan configuration using nano">}}
+{{< figure src="configure-netplan.png" alt="Edit netplan configuration using nano">}}
 
 1. Apply the network configuration changes using **netplan**, which will hang for several seconds and then reset the connection.
 Log back in again using the new static IP address.
@@ -355,7 +355,7 @@ For example, using **nano** to edit the configuration file looks like this. When
 	{{< highlight txt >}}
 ccammack@odroid:~$ sudo nano /etc/samba/smb.conf
 {{< /highlight >}}
-{{< figure src="/img/install-ubuntu-server-and-samba-on-the-odroid-hc1/configure-samba.png" alt="Edit Samba configuration using nano">}}
+{{< figure src="configure-samba.png" alt="Edit Samba configuration using nano">}}
 
 1. Restart the Samba server.
 	{{< highlight txt >}}
@@ -378,7 +378,7 @@ ccammack@odroid:~$
 #### Browse the Samba share
 1. It should now be possible to use the File Explorer to browse the Samba share using the device's name (**\\\\ODROID\data**) or IP address (**\\\\192.168.0.254\data**).
 Enter the user name and Samba password when requested.
-{{< figure src="/img/install-ubuntu-server-and-samba-on-the-odroid-hc1/access-samba-using-file-explorer.png" alt="Browse a Samba share using File Explorer">}}
+{{< figure src="access-samba-using-file-explorer.png" alt="Browse a Samba share using File Explorer">}}
 
 2. It should also be possible to use a web browser to access the files using using the device's name (**file://odroid/data/**) or IP address (**file://192.168.0.254/data/**).
-{{< figure src="/img/install-ubuntu-server-and-samba-on-the-odroid-hc1/access-samba-using-web-browser.png" alt="Browse a Samba share using a web browser">}}
+{{< figure src="access-samba-using-web-browser.png" alt="Browse a Samba share using a web browser">}}

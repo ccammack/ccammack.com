@@ -9,7 +9,7 @@ This is the easiest way I know of to install [Cygwin](https://www.cygwin.com) an
 <!--more-->
 
 1. Open the Start menu, type **cmd** to filter, and select **cmd** to open a console window.
-{{< figure src="/img/install-cygwin-and-apt-cyg/open-cmd-prompt.png" alt="Open the Windows command prompt">}}
+{{< figure src="open-cmd-prompt.png" alt="Open the Windows command prompt">}}
 
 1. Use the console to create a root folder for Cygwin, such as **C:\cygwin**, then download and install Cygwin and **wget**.
 {{< highlight bat >}}
@@ -20,7 +20,7 @@ C:\Windows\System32> c:\cygwin\setup-x86_64.exe -q -R c:\cygwin -s http://cygwin
 {{< /highlight >}}
 
 1. After the installation finishes, a new shortcut called **Cygwin64 Terminal** will appear on the desktop.
-{{< figure src="/img/install-cygwin-and-apt-cyg/cygwin64-shortcut.png" alt="Cygwin64 Terminal desktop shortcut">}}
+{{< figure src="cygwin64-shortcut.png" alt="Cygwin64 Terminal desktop shortcut">}}
 
 1. Right-click the **Cygwin64 Terminal** shortcut and select **Run as administrator** to run Cygwin as root.
 

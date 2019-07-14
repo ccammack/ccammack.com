@@ -59,7 +59,7 @@ Each time the car moves to a new location, toggle the COMMENT off for the new lo
 
 Marking the new location's entry as **TODO** isn't required, but it makes the reminder stand out more in the agenda view.
 
-{{< figure src="/img/schedule-street-cleaning-reminders-in-org-mode/agenda-view.png" caption="Street cleaning reminders as they appear in the agenda">}}
+{{< figure src="agenda-view.png" caption="Street cleaning reminders as they appear in the agenda">}}
 
 Although this approach requires one to manually toggle the COMMENT on and off to hide and show entries in the agenda, it should be possible to write
 [custom code](https://stackoverflow.com/questions/13555385/org-mode-how-to-schedule-repeating-tasks-for-the-first-saturday-of-every-month/13755627#13755627)
