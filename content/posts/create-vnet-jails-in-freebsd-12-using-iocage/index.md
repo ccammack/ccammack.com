@@ -240,23 +240,17 @@ and this same technique can also be used to run programs inside a jail when the 
 
 In addition, the file system for each jail is stored under */zroot/iocage/jails/* on the host, making it possible for the host system to access the jailed file systems directly if needed.
 
-To create a tiny web server inside the jail for testing, *make sure the rc.d folder exists* in the jail, then *add an executable startup script* to that folder and *reboot* the system.
+So, to create a tiny web server inside the jail for testing, *make sure the rc.d folder exists* in the jail, then *add an executable startup script* to that folder and *restart* the jail.
 
 {{< highlight txt >}}
 # iocage exec j1 mkdir -p /usr/local/etc/rc.d
-# echo 'while true ; do echo -e "HTTP/1.1 200 OK\n\n`hostname`: `date`" | nc -l 8080 -N ; done' > /zroot/iocage/jails/j1/root/usr/local/etc/rc.d/one-line-web-server.sh
+# echo 'while true ; data="`hostname`: `date`" ; length=`echo $data | wc -c` ; do echo -e "HTTP/1.1 200 OK\nContent-Length: $length\n\n$data" | nc -l 8080 -N ; done &' > /zroot/iocage/jails/j1/root/usr/local/etc/rc.d/one-line-web-server.sh
 # iocage exec j1 cat /usr/local/etc/rc.d/one-line-web-server.sh
-while true ; do echo -e "HTTP/1.1 200 OK\n\n`hostname`: `date`" | nc -l 8080 -N ; done
+while true ; data="`hostname`: `date`" ; length=`echo $data | wc -c` ; do echo -e "HTTP/1.1 200 OK\nContent-Length: $length\n\n$data" | nc -l 8080 -N ; done &
 # iocage exec j1 chmod +x /usr/local/etc/rc.d/one-line-web-server.sh
-# reboot
+# iocage restart j1
 {{< /highlight >}}
 
-> This little one-line web server works well enough for a quick test, but because it runs as a foreground process,
-it interferes with the normal start and stop functions of the jail system and may prevent other jails from starting at all.
-
-> It can be run in the background by appending "&" to the end of the line as usual, but when I tested that, Firefox was the only browser that worked reliably.
-The other browsers I tried returned ERR_CONNECTION_ABORTED errors several times while refreshing the page.
-
-After the system reboots, open http://192.168.0.254:8080/ in a web browser and make sure the web server reports the jail's name and current date.
+After the jail restarts, open http://192.168.0.254:8080/ in a web browser and make sure the web server reports the jail's name and current date.
 
 {{< figure src="one-line-web-server-test.png" alt="One-line web server test in Firefox">}}
