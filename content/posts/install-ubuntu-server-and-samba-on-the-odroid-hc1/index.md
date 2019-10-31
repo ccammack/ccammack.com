@@ -18,7 +18,7 @@ Armbian probably makes system configuration easier, and OMV provides a full NAS 
 
 #### Installation
 
-1. Download the latest [Ubuntu 18.04 (MINIMAL, BARE OS) image](https://odroid.in/ubuntu_18.04lts/ubuntu-18.04.1-4.14-minimal-odroid-xu4-20181203.img.xz) from
+1. Download the latest *Ubuntu 18.04 (MINIMAL, BARE OS)* image from
 the [ODROID Ubuntu Kernel 4.14 repository](https://wiki.odroid.com/odroid-xu4/os_images/linux/ubuntu_4.14/ubuntu_4.14)
 and burn it to a microSD card using [Etcher](https://www.balena.io/etcher/).
 {{< figure src="burn-ubuntu-image-using-etcher.png" alt="Burn the Ubuntu image to the microSD card using Etcher">}}
