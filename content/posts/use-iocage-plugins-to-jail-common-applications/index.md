@@ -5,7 +5,7 @@ tags: ["FreeBSD", "iocage", "jails"]
 ---
 
 The [plugin](https://iocage.readthedocs.io/en/latest/plugins.html) feature in [iocage](../create-vnet-jails-in-freebsd-12-using-iocage) makes it easy
-to create pre-configured container jails for many [common applications](https://github.com/freenas/iocage-ix-plugins).
+to create pre-configured container jails for many [common applications](https://raw.githubusercontent.com/freenas/iocage-ix-plugins/master/INDEX).
 
 <!--more-->
 
