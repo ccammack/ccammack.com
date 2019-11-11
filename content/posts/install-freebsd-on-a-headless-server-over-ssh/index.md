@@ -172,10 +172,11 @@ Edit /etc/motd to change this login announcement.
 root@:~ # bsdinstall
 	{{< /highlight >}}
 
-	Some terminals might not have the proper settings to display ACS lines correctly when running the installer, but the installation process will still work even if the screen doesn't look right.
-	In my case, running SSH under **CMD inside Cmder** didn't display properly, but running SSH under **mintty inside Cmder** displayed perfectly.
-{{< figure src="run-bsdinstall-cmd.png" caption="Running CMD inside Cmder fails to display ACS lines properly">}}
-{{< figure src="run-bsdinstall-mintty.png" caption="Running mintty inside Cmder displays ACS lines perfectly">}}
+	> Some terminals might not have the proper settings to display the [ACS line graphics characters](http://www.tldp.org/HOWTO/NCURSES-Programming-HOWTO/misc.html#ACSVARS)
+correctly during the installation, but the installation process will still work even if the screen doesn't look right.
+In my case, running SSH under **CMD inside Cmder** didn't display properly, but running SSH under **mintty inside Cmder** displayed perfectly.
+{{< figure src="run-bsdinstall-cmd.png" caption="Running CMD inside Cmder fails to display ACS characters properly">}}
+{{< figure src="run-bsdinstall-mintty.png" caption="Running mintty inside Cmder displays ACS characters perfectly">}}
 
 1. After the installation finishes, shutdown the server, remove the USB thumb drive and reboot.
 If you elected to use DHCP or assigned a static IP address to the server during the installation, the system will have a new IP address after restarting.
