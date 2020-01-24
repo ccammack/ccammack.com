@@ -81,7 +81,18 @@ PATH=/etc:/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin
 
 The script will only create snapshots for datasets that have their **com.sun:auto-snapshot** property set to **true**, and
 the snapshot property will automatically be inherited by all descendants of that dataset unless disabled further down the tree.
-For example, [_FreeBSD Mastery: ZFS (IT Mastery Book 7)_](https://www.amazon.com/FreeBSD-Mastery-ZFS-Book-ebook/dp/B00Y32OHNM) recommends disabling snapshots for the ports tree and its descendants.
+For example, [Michael W. Lucas](https://www.amazon.com/FreeBSD-Mastery-ZFS-Book-ebook/dp/B00Y32OHNM) recommends disabling snapshots for datasets [that can be easily replicated](https://mwl.io/archives/2140) if needed.
+
+* /tmp
+* /usr/obj
+* /usr/src
+* /usr/ports
+* /usr/ports/distfiles
+* /usr/ports/packages
+* /var/crash
+* /var/empty
+* /var/run
+* /var/tmp
 
 {{< highlight txt >}}
 # zpool list
@@ -94,11 +105,19 @@ zroot                                    10.3G  3.50T    96K  /zroot
 zroot/ROOT                               4.01G  3.50T    96K  none
 zroot/ROOT/default                       4.01G  3.50T  4.01G  /
 ...
-zroot/usr/ports                           656M  3.50T   656M  /usr/ports
-...
 
 # zfs set com.sun:auto-snapshot=true zroot
+# zfs set com.sun:auto-snapshot=false zroot/tmp
+# zfs set com.sun:auto-snapshot=false zroot/usr/obj
+# zfs set com.sun:auto-snapshot=false zroot/usr/src
 # zfs set com.sun:auto-snapshot=false zroot/usr/ports
+# zfs set com.sun:auto-snapshot=false zroot/usr/ports/distfiles
+# zfs set com.sun:auto-snapshot=false zroot/usr/ports/packages
+# zfs set com.sun:auto-snapshot=false zroot/var/crash
+# zfs set com.sun:auto-snapshot=false zroot/var/empty
+# zfs set com.sun:auto-snapshot=false zroot/var/run
+# zfs set com.sun:auto-snapshot=false zroot/var/tmp
+
 {{< /highlight >}}
 
 That should be all it takes to get things running. After 15 minutes at most, the first set of snapshots should begin to appear in the system with **zfs list -t snapshot**.

@@ -1,5 +1,5 @@
 ---
-title: "Install Samba Inside a FreeBSD Jail"
+title: "Jail Samba in FreeBSD"
 date: 2019-11-03T16:40:06-08:00
 tags: ["FreeBSD", "iocage", "jails", "Samba"]
 ---
@@ -129,7 +129,6 @@ Goodbye!
 Create the folder you intend to share, along with an extra folder and file for testing, then change their owner to the Samba user.
 
 {{< highlight txt >}}
-# iocage exec media mkdir -p /home/ccammack/media
 # iocage exec media mkdir -p /home/ccammack/media/test
 # iocage exec media touch /home/ccammack/media/test/test.txt
 # iocage exec media chown -R ccammack:ccammack /home/ccammack/media
