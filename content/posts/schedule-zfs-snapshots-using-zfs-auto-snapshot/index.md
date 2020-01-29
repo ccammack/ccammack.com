@@ -81,7 +81,8 @@ PATH=/etc:/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin
 
 The script will only create snapshots for datasets that have their **com.sun:auto-snapshot** property set to **true**, and
 the snapshot property will automatically be inherited by all descendants of that dataset unless disabled further down the tree.
-For example, [Michael W. Lucas](https://www.amazon.com/FreeBSD-Mastery-ZFS-Book-ebook/dp/B00Y32OHNM) recommends disabling snapshots for datasets [that can be easily replicated](https://mwl.io/archives/2140) if needed.
+It is not necessary to snapshot every dataset on the system; [Michael W. Lucas](https://www.amazon.com/FreeBSD-Mastery-ZFS-Book-ebook/dp/B00Y32OHNM) recommends [disabling snapshots](https://mwl.io/archives/2140)
+for datasets that can be easily recreated if needed and for those for which old versions of the files are not generally useful:
 
 * /tmp
 * /usr/obj
