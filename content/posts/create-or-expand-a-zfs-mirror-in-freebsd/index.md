@@ -232,7 +232,7 @@ Edit the file or use sed to add an entry for the new drive.
 Wait for the drive to finish resilvering and check the status of the mirror.
 
 {{< highlight txt >}}
-root@server:/usr/home/ccammack # zpool status
+# zpool status
   pool: zroot
  state: ONLINE
   scan: resilvered 823M in 0 days 00:00:19 with 0 errors on Mon Mar 23 21:56:30 2020
