@@ -9,7 +9,7 @@ theme = "minimo"
 disqusShortname = ""
 googleAnalytics = ""
 
-Paginate = 5
+Paginate = 99
 preserveTaxonomyNames = true
 
 enableRobotsTXT = true # generate robots.txt
@@ -59,7 +59,7 @@ noTermCloudShuffle = true
 enable = false
 
 [params.widgets]
-header = ["breadcrumbs"]
+#header = ["breadcrumbs"]
 homepage = ["recent_posts"]
 sidebar = ["about","search","sidebar_menu","taxonomy_cloud"]
 footer = ["social_menu"]
@@ -166,6 +166,6 @@ mediatype = "application/rss"
 baseName = "feed"
 rssLimit = 99
 
-[author]
+#[author]
 name = "Chris Cammack"
 email = "chris@ccammack.com"
