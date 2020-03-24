@@ -9,8 +9,7 @@ theme = "minimo"
 disqusShortname = ""
 googleAnalytics = ""
 
-# Pagination ... default = 10
-Paginate = 99
+Paginate = 5
 preserveTaxonomyNames = true
 
 enableRobotsTXT = true # generate robots.txt
@@ -18,7 +17,6 @@ enableRobotsTXT = true # generate robots.txt
 # Syntax Highlighting ( https://gohugo.io/content-management/syntax-highlighting/ )
 pygmentsCodefences = true
 
-# Enable use of emojis in content files
 enableEmoji = false
 
 # Missing translations will default to this content language
@@ -46,10 +44,14 @@ dateFormat = "02 January 2006"
 listDateFormat = "02 Jan 2006"
 archiveDateFormat = "Jan 02"
 hideEntryNavigation = ["page"] # boolean / array of sections
+hideEntryMeta = ["page"] # boolean / array of sections
 showReadingTime = false
-taxonomyCloudShuffle = true
+showLastmod = false
+taxonomyCloudShuffle = false
 accentColor = "#66CCFF"
 hideMainMenu = false
+rtl = false
+
 hideSocialMenu = false
 noTermCloudShuffle = true
 
@@ -57,34 +59,68 @@ noTermCloudShuffle = true
 enable = false
 
 [params.widgets]
+header = ["breadcrumbs"]
 homepage = ["recent_posts"]
-sidebar = ["about","taxonomy_cloud"]
+sidebar = ["about","search","sidebar_menu","taxonomy_cloud"]
 footer = ["social_menu"]
+
+[params.opengraph.facebook]
+admins = [] # array of Facebook IDs
+appID = ""
+pageID = ""
+
+[params.opengraph.twitter]
+page = "" # Twitter page username
 
 [params.seo]
 # Title Separator: - – — · • * ⋆ | ~ « » < >
 titleSeparator = "•"
 
 [params.social]
+#codepen = "MunifTanjim"
 email = "chris@ccammack.com"
+#facebook = "MunifTanjim"
 github = "ccammack"
+#gitlab = "MunifTanjim"
+#instagram = "MunifTanjim"
 linkedin = "ccammack"
-
-#[params.social.config]
-#platforms = ["github","linkedin","email"]
+#twitter = "MunifTanjim"
+#telegram = "MunifTanjim"
+#google_scholar = "qc6CJjYAAAAJ"
+#youtube = "UCT-U0rNerYxItGcuoPX-WYA"
 
 [params.comments]
 enable = false
 
-#[params.comments.staticman]
-#enable = true
-#apiEndpoint = "https://api.staticman.net/v2/entry"
-#maxDepth = 2
+# Isso: https://posativ.org/isso/
+[params.comments.isso]
+enable = false
+scriptSrc = "" # "https://isso.example.com/js/embed.min.js"
+dataAttrs = "" # "data-isso='https://isso.example.com' data-isso-require-author='true'"
 
-#[params.comments.staticman.github]
-#username = "MunifTanjim"
-#repository = "minimo"
-#branch = "master"
+[params.comments.staticman]
+enable = true
+apiEndpoint = "https://api.staticman.net/v2/entry"
+maxDepth = 2
+username = "MunifTanjim"
+repository = "minimo"
+
+# Utterances: https://utteranc.es
+[params.comments.utterances]
+enable = false
+issueTerm = "pathname" # pathname / url / title
+
+[params.comments.utterances.github]
+username = "MunifTanjim"
+repository = "minimo"
+
+[params.search]
+client = "fuse" # algolia / fuse / lunr
+
+[params.search.algolia]
+appId = ""
+indexName = ""
+searchApiKey = ""
 
 [taxonomies]
 #author = "authors"
@@ -94,7 +130,6 @@ tag = "tags"
 
 [permalinks]
 page = "/:slug/"
-posts = "/:slug/"
 
 [[menu.main]]
 name = "Home"
@@ -118,6 +153,7 @@ url = "/feed.xml"
 hrefTargetBlank = true
 
 [languages]
+# edit this block for your own language
 [languages.en]
 lang = "en"
 languageName = "English"
@@ -128,9 +164,8 @@ weight = 1
 [outputFormats.RSS]
 mediatype = "application/rss"
 baseName = "feed"
-
 rssLimit = 99
 
 [author]
 name = "Chris Cammack"
-email = "admin@ccammack.com"
+email = "chris@ccammack.com"
