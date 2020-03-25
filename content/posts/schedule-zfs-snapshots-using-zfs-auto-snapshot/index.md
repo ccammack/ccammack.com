@@ -121,7 +121,7 @@ zroot/ROOT/default                       4.01G  3.50T  4.01G  /
 
 {{< /highlight >}}
 
-That should be all it takes to get things running. After 15 minutes at most, the first set of snapshots should begin to appear in the system with **zfs list -t snapshot**.
+That should be all it takes to get things running. Within 15 minutes or so, the first set of snapshots should begin to appear in the system with **zfs list -t snapshot**.
 
 {{< highlight txt >}}
 # zfs list -t snapshot
