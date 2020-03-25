@@ -166,6 +166,6 @@ mediatype = "application/rss"
 baseName = "feed"
 rssLimit = 99
 
-#[author]
+[author]
 name = "Chris Cammack"
 email = "chris@ccammack.com"
