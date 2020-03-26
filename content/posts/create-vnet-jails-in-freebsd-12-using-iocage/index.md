@@ -135,7 +135,6 @@ ZFS pool 'zroot' successfully activated.
 
 # iocage fetch -r latest
 [...]
-
 Fetching: 12.0-RELEASE
 [...]
 {{< /highlight >}}
