@@ -99,7 +99,6 @@ root@:~ # mount /dev/da0p2 /mnt
 g_vfs_done():da0p2[READ(offset=65536, length=8192)]error = 5
 mount: /dev/da0p2: Input/output error
 root@:~ # mount /dev/da0p3 /mnt
-root@:~ #
 	{{< /highlight >}}
 
 1. Run **ls /mnt** to ensure that the root partition has mounted properly and contains the usual directories such as **bin**, **boot**, **dev**, **tmp**, **usr** and **var**.
@@ -111,7 +110,6 @@ COPYRIGHT		README.TXT		docbook.css		net			tmp
 ERRATA.HTM		RELNOTES.HTM	etc				proc		usr
 ERRATA.TXT		RELNOTES.TXT	lib				rescue		var
 HARDWARE.HTM	bin				libexec			root
-root@:~ #
 	{{< /highlight >}}
 
 1. Modify the installer settings to hard-code the selected IP address and enable root logins over SSH, then unmount the USB thumb drive and shutdown the VM.

@@ -25,7 +25,7 @@ C:\Windows\System32> c:\cygwin\setup-x86_64.exe -q -R c:\cygwin -s http://cygwin
 1. Right-click the **Cygwin64 Terminal** shortcut and select **Run as administrator** to run Cygwin as root.
 
 1. In the Cygwin root console, use **wget** to download and install the **apt-cyg** package manager.
-{{< highlight bash >}}
+{{< highlight txt >}}
 $ wget rawgit.com/transcode-open/apt-cyg/master/apt-cyg
 $ install apt-cyg /bin
 $ rm apt-cyg
@@ -33,7 +33,7 @@ $ rm apt-cyg
 
 1. Follow the instructions for [apt-cyg](https://github.com/transcode-open/apt-cyg) to install additional software as needed.
 For example, to install **SSH**, run the **Cygwin64 Terminal** as **Administrator** and enter the command **apt-cyg install openssh**.
-{{< highlight bash >}}
+{{< highlight txt >}}
 $ apt-cyg install openssh
 Installing openssh
 openssh-7.6p1-1.tar.xz: OK

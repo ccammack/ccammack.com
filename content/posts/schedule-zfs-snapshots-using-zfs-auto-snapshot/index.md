@@ -14,7 +14,7 @@ $ su
 Password:
 
 # pkg install zfstools
-...
+[...]
 
 Message from zfstools-0.3.6_1:
 --
@@ -61,7 +61,7 @@ After creating the root user crontab, double-check the schedule using **crontab 
 
 {{< highlight txt >}}
 # crontab -e -u root
-...
+[...]
 
 # crontab -l
 SHELL=/bin/sh
@@ -105,7 +105,7 @@ NAME                                      USED  AVAIL  REFER  MOUNTPOINT
 zroot                                    10.3G  3.50T    96K  /zroot
 zroot/ROOT                               4.01G  3.50T    96K  none
 zroot/ROOT/default                       4.01G  3.50T  4.01G  /
-...
+[...]
 
 # zfs set com.sun:auto-snapshot=true zroot
 # zfs set com.sun:auto-snapshot=false zroot/tmp
@@ -131,5 +131,5 @@ zroot@zfs-auto-snap_frequent-2019-11-18-23h15
     0      -    96K  -
 zroot/ROOT/default@zfs-auto-snap_frequent-2019-11-18-23h15
     0      -  4.01G  -
-...
+[...]
 {{< /highlight >}}

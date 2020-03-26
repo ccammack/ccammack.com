@@ -66,7 +66,7 @@ The following 53 package(s) will be affected (of 0 checked):
 
 New packages to be INSTALLED:
         samba410: 4.10.8
-...
+[...]
 
 Message from samba410-4.10.8:
 --
@@ -161,7 +161,7 @@ Inside the jail, create the samba config file (**/usr/local/etc/smb4.conf**) usi
 
 {{< highlight txt >}}
 # iocage exec media ee /usr/local/etc/smb4.conf
-...
+[...]
 
 # iocage exec media cat /usr/local/etc/smb4.conf
 [global]
@@ -234,7 +234,7 @@ To allow changes inside the **\\\\MEDIA\\media** folder, edit the configuration 
 
 {{< highlight txt >}}
 # iocage exec media ee /usr/local/etc/smb4.conf
-...
+[...]
 
 # iocage exec media cat /usr/local/etc/smb4.conf
 [global]

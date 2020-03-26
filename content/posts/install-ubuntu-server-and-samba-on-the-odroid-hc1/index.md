@@ -37,8 +37,8 @@ In my case, the router assigned **192.168.0.110**.
 Depending on the network setup, it might also be possible to use the device name (**odroid**) instead of the IP address.
 {{< highlight txt >}}
 λ ssh root@odroid
-...
-{{< /highlight >}}
+[...]
+{{< /highlight>}}
 {{< highlight txt >}}
 λ ssh root@192.168.0.110
 The authenticity of host '192.168.0.110 (192.168.0.110)' can't be established.
@@ -58,17 +58,15 @@ individual files in /usr/share/doc/*/copyright.
 
 Ubuntu comes with ABSOLUTELY NO WARRANTY, to the extent permitted by
 applicable law.
-
-root@odroid:~#
 {{< /highlight >}}
 
 1. Update the system.
-{{< highlight bash >}}
+{{< highlight txt>}}
 root@odroid:~# apt update
-...
+[...]
+
 root@odroid:~# apt -y full-upgrade
-...
-root@odroid:~#
+[...]
 {{< /highlight >}}
 
 #### Create a regular user
@@ -93,8 +91,9 @@ Enter the new value, or press ENTER for the default
         Home Phone []:
         Other []:
 Is the information correct? [Y/n] y
+
 root@odroid:~# usermod -aG sudo ccammack
-root@odroid:~#
+
 {{< /highlight >}}
 
 1. Switch to the new user and make sure it can use sudo.
@@ -105,18 +104,21 @@ See "man sudo_root" for details.
 
 ccammack@odroid:~$ ls -a /root
 ls: cannot open directory '/root': Permission denied
+
 ccammack@odroid:~$ sudo ls -a /root
 [sudo] password for ccammack:
 .  ..  .bash_history  .bashrc  .cache  .gnupg  .local  .profile  .wget-hsts
-ccammack@odroid:~$
+
 {{< /highlight >}}
 
 1. Exit the regular user, lock the root account and log out.
 	{{< highlight txt >}}
 ccammack@odroid:~$ exit
 logout
+
 root@odroid:~# passwd -dl root
 passwd: password expiry information changed.
+
 root@odroid:~# exit
 logout
 Connection to 192.168.0.110 closed.
@@ -133,7 +135,6 @@ Welcome to Ubuntu 18.04.1 LTS (GNU/Linux 4.14.94-155 armv7l)
  * Support:        https://ubuntu.com/advantage
 
 Last login: Sat Feb  2 10:14:13 2019 from 192.168.0.103
-ccammack@odroid:~$
 {{< /highlight >}}
 
 #### Assign a static IP to the device (optional)
@@ -156,7 +157,6 @@ ccammack@odroid:~$ sudo ip a
        valid_lft 3068935748sec preferred_lft 3068935748sec
     inet6 fe80::7285:ef8e:8d70:92bc/64 scope link noprefixroute
        valid_lft forever preferred_lft forever
-ccammack@odroid:~$
 {{< /highlight >}}
 
 2. The default netplan configuration file for Ubuntu Server 18.04 is **/etc/netplan/01-netcfg.yaml**.
@@ -185,7 +185,7 @@ ccammack@odroid:~$ sudo nano /etc/netplan/01-netcfg.yaml
 Log back in again using the new static IP address.
 {{< highlight txt >}}
 ccammack@odroid:~$ sudo netplan apply
-ccammack@odroid:~$ Connection reset by 192.168.0.110 port 22
+Connection reset by 192.168.0.110 port 22
 
 λ ssh ccammack@192.168.0.254
 The authenticity of host '192.168.0.254 (192.168.0.254)' can't be established.
@@ -200,7 +200,6 @@ Welcome to Ubuntu 18.04.1 LTS (GNU/Linux 4.14.94-155 armv7l)
  * Support:        https://ubuntu.com/advantage
 
 Last login: Sun Feb  3 03:14:56 2019 from 192.168.0.103
-ccammack@odroid:~$
 {{< /highlight >}}
 
 #### Partition and format the SATA drive
@@ -209,14 +208,13 @@ ccammack@odroid:~$
 
 	{{< highlight txt >}}
 ccammack@odroid:~$ sudo fdisk -l
-...
+[...]
 Disk /dev/sda: 298.1 GiB, 320072933376 bytes, 625142448 sectors
 Units: sectors of 1 * 512 = 512 bytes
 Sector size (logical/physical): 512 bytes / 4096 bytes
 I/O size (minimum/optimal): 4096 bytes / 33553920 bytes
 Disklabel type: dos
 Disk identifier: 0xdca13c75
-ccammack@odroid:~$
 {{< /highlight >}}
 
 2. Run fdisk on that drive and use the **d** command a few times to delete any existing partitions.
@@ -284,7 +282,6 @@ Disk identifier: 0xdca13c75
 
 Device     Boot Start       End   Sectors   Size Id Type
 /dev/sda1        2048 625142447 625140400 298.1G 83 Linux
-ccammack@odroid:~$
 {{< /highlight >}}
 
 1. Format the new partition using **mkfs**, which may take some time to to finish.
@@ -301,7 +298,6 @@ Allocating group tables: done
 Writing inode tables: done
 Creating journal (262144 blocks): done
 Writing superblocks and filesystem accounting information: done
-ccammack@odroid:~$
 {{< /highlight >}}
 
 #### Automatically mount the SATA drive at startup
@@ -311,7 +307,6 @@ ccammack@odroid:~$
 	{{< highlight txt >}}
 ccammack@odroid:~$ sudo blkid /dev/sda1
 /dev/sda1: UUID="64f39c2a-d55e-4580-9570-b28df4410e78" TYPE="ext4" PARTUUID="dca13c75-01"
-ccammack@odroid:~$
 {{< /highlight >}}
 
 1. Create a mount point for the partition (**/media/hdd**).
@@ -326,8 +321,8 @@ ccammack@odroid:~$ sudo mount /dev/sda1
 ccammack@odroid:~$ sudo df -h /media/hdd
 Filesystem      Size  Used Avail Use% Mounted on
 /dev/sda1       293G   65M  278G   1% /media/hdd
+
 ccammack@odroid:~$ sudo chown -R ccammack:ccammack /media/hdd
-ccammack@odroid:~$
 {{< /highlight >}}
 
 #### Set up Samba to access the drive from other machines
@@ -335,8 +330,7 @@ ccammack@odroid:~$
 1. Install Samba.
 	{{< highlight txt >}}
 ccammack@odroid:~$ sudo apt -y install samba
-...
-ccammack@odroid:~$
+[...]
 {{< /highlight >}}
 
 2. Edit the Samba configuration file (**/etc/samba/smb.conf**) and add the new mount point and user info to the bottom of the file.
@@ -361,7 +355,6 @@ ccammack@odroid:~$ sudo nano /etc/samba/smb.conf
 	{{< highlight txt >}}
 ccammack@odroid:~$ sudo /etc/init.d/smbd restart
 [ ok ] Restarting smbd (via systemctl): smbd.service.
-ccammack@odroid:~$
 {{< /highlight >}}
 
 1. Samba uses a different password database than the one used by the system, so run the **smbpasswd** command to set the Samba password for the user.
@@ -372,7 +365,6 @@ ccammack@odroid:~$ sudo smbpasswd -a ccammack
 New SMB password:
 Retype new SMB password:
 Added user ccammack.
-ccammack@odroid:~$
 {{< /highlight >}}
 
 #### Browse the Samba share

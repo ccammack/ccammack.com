@@ -56,10 +56,12 @@ Update the system and install iocage.
 {{< highlight txt >}}
 $ su
 Password:
+
 # freebsd-update fetch install
-...
+[...]
+
 # pkg install py36-iocage-1.1
-...
+[...]
 {{< /highlight >}}
 
 Examine **rc.conf** or run **ifconfig** to get the name of the network interface, which is **bge0** in this case.
@@ -81,7 +83,7 @@ bge0: flags=8943<UP,BROADCAST,RUNNING,PROMISC,SIMPLEX,MULTICAST> metric 0 mtu 15
         media: Ethernet autoselect (100baseTX <full-duplex>)
         status: active
         nd6 options=29<PERFORMNUD,IFDISABLED,AUTO_LINKLOCAL>
-...
+[...]
 {{< /highlight >}}
 
 Edit **rc.conf** and add three lines to the bottom to *enable iocage at startup*, create a *network bridge*, and *attach the bridge* to the host's network interface.
@@ -132,9 +134,10 @@ zroot   928G  2.17G   926G        -         -     0%     0%  1.00x  ONLINE  -
 ZFS pool 'zroot' successfully activated.
 
 # iocage fetch -r latest
-...
+[...]
+
 Fetching: 12.0-RELEASE
-...
+[...]
 {{< /highlight >}}
 
 To create a jail that uses DHCP to request an IP address from the router, call **iocage create** and specify the **bpf** and **dhcp** parameters.
@@ -186,7 +189,7 @@ If the information in *resolv.conf* is not correct for some network setups, use 
 # iocage set resolver="search hsd1.ca.comcast.net;nameserver 192.168.0.1" j0
 {{< /highlight >}}
 
-On systems with complicated network setups, use the jail's **interfaces** property to assign the correct **vnet** and **bridge** to the jail.
+On systems with more complicated network setups, use the jail's **interfaces** property to assign the correct **vnet** and **bridge** to the jail.
 
 {{< highlight txt >}}
 # iocage set interfaces="vnet0:bridge0" j0

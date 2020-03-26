@@ -46,7 +46,7 @@ FreeBSD repository is up to date.
 All repositories are up to date.
 Updating database digests format: 100%
 The following 36 package(s) will be affected (of 0 checked):
-...
+[...]
 {{< /highlight >}}
 
 After the installation finishes, enter the jail's console for configuration.
@@ -150,7 +150,7 @@ $ gitea admin create-user --username ccammack --password 1234 --email ccammack@e
 
 2020/01/24 19:55:01 ...dules/setting/git.go:87:newGit() [I] Git Version: 2.24.1, Wire Protocol Version 2 Enabled
 2020/01/24 19:55:01 .../xorm/session_raw.go:76:queryRows() [I] [SQL] SELECT count(*) FROM `user` WHERE (type=0) - took: 4.149963ms
-...
+[...]
 New user 'ccammack' has been successfully created!
 {{< /highlight >}}
 

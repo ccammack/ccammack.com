@@ -14,8 +14,10 @@ Use **iocage list** to see the available applications.
 {{< highlight txt >}}
 $ su
 Password:
+
 # iocage -v
 Version 1.1 RELEASE 2019/01
+
 # iocage list --plugins --remote
 'HTTPResponse' object has no attribute 'geturl'
 {{< /highlight >}}
@@ -58,6 +60,7 @@ Try **iocage list** again.
 {{< highlight txt >}}
 # iocage -v
 Version 1.2 RC
+
 # iocage list -PR
 Branch 12.0-RELEASE does not exist at https://github.com/freenas/iocage-ix-plugins.git!
 Using "master" branch for plugin, this may not work with your RELEASE
@@ -74,7 +77,7 @@ Using "master" branch for plugin, this may not work with your RELEASE
 |                   | to a server's     |                   |                  |
 |                   | disk.             |                   |                  |
 +-------------------+-------------------+-------------------+------------------+
-...
+[...]
 +-------------------+-------------------+-------------------+------------------+
 | Nextcloud         | Access, share and | nextcloud         | https://www.true |
 |                   | protect your      |                   | os.org/iocage-ic |
@@ -85,7 +88,7 @@ Using "master" branch for plugin, this may not work with your RELEASE
 |                   | in your           |                   |                  |
 |                   | enterprise.       |                   |                  |
 +-------------------+-------------------+-------------------+------------------+
-...
+[...]
 {{< /highlight >}}
 
 To create a jailed application, such as [NextCloud](https://nextcloud.com/), call **iocage fetch** and use the **-P** option to specify the **PKG** name from the list above.
@@ -102,7 +105,7 @@ Plugin: Nextcloud
     - nextcloud-php71
     - nginx
     - mysql56-server
-...
+[...]
 Admin Portal:
 http://192.168.0.117
 {{< /highlight >}}
@@ -120,7 +123,7 @@ Plugin: Nextcloud
     - nextcloud-php71
     - nginx
     - mysql56-server
-...
+[...]
 Admin Portal:
 http://192.168.0.254
 {{< /highlight >}}
