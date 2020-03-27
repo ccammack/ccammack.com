@@ -4,12 +4,12 @@ date: 2020-03-24T21:02:40-07:00
 tags: ["FreeBSD", "ZFS"]
 ---
 
-[Lucas and Jude](https://www.amazon.com/FreeBSD-Mastery-ZFS-Book-ebook/dp/B00Y32OHNM) recommend using GPT labels on each partition to indicate the hard drive's physical location and serial number.
+[Lucas and Jude](https://www.amazon.com/FreeBSD-Mastery-ZFS-Book-ebook/dp/B00Y32OHNM) recommend using GPT labels on each drive partition to indicate the hard drive's physical location and serial number.
 This would obviously simplify things when working with large numbers of drives in a remote location, but it seems just as useful to me for a personal sever. Also, it's really easy to do.
 
 <!--more-->
 
-The first step is to devise a numbering scheme for the physical drive locations in the case.
+To do this, first devise a numbering scheme for the physical drive locations in the case.
 For example, my test server contains a stack of 8 drive bays, which I have labeled from 00 at the bottom to 07 at the top.
 
 Next, shut down the server, pull each drive out one at a time and record the serial number from each along with the physical drive bay where it resides.
@@ -151,7 +151,7 @@ errors: No known data errors
 {{< /highlight >}}
 
 For cases like this, where the problem drive can still be detected by the system and the device node has not been reassigned,
-run **gpart show** on the *OFFLINE* partition to get the faulty drive's bay id and serial number from the GPT label.
+run **gpart show** on the *OFFLINE* device node to display the faulty drive's bay id and serial number from the GPT label.
 
 {{< highlight txt >}}
 # gpart show -l ada1 | grep zfs

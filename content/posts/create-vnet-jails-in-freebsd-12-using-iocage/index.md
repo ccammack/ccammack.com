@@ -168,7 +168,7 @@ j1 successfully created!
   + Executing poststart OK
 {{< /highlight >}}
 
-Each time a jail starts, it automatically copies */etc/resolv.conf* from the host system to the jail.
+Each time a jail starts, the system automatically copies */etc/resolv.conf* from the host to the jail.
 
 {{< highlight txt >}}
 # cat /etc/resolv.conf
@@ -237,12 +237,14 @@ Use **iocage list** to see the status of the jails.
 +-----+------+-------+--------------+------------------+
 {{< /highlight >}}
 
-In recent versions of FreeBSD, shell scripts placed inside the folder */usr/local/etc/rc.d* will automatically run at system startup,
-and this same technique can also be used to run programs inside a jail when the jail starts.
+FreeBSD relies on [rc scripts](https://www.freebsd.org/doc/handbook/configtuning-rcd.html) to start services as the system initializes.
+Executable shell scripts placed inside the folder */usr/local/etc/rc.d* will automatically run at system startup,
+and this can also be used inside a jail to run programs when the jail starts.
 
-In addition, the file system for each jail is stored under */zroot/iocage/jails/* on the host, making it possible for the host system to access the jailed file systems directly if needed.
+The file system for each jail is stored under */zroot/iocage/jails/* on the host, making it possible for the host system to access the jailed file systems directly if needed.
 
-So, to create a tiny web server inside the jail for testing, *make sure the rc.d folder exists* in the jail, then *add an executable startup script* to that folder and *restart* the jail.
+To test the jail, *make sure the rc.d folder exists* in the jail, then *add an executable startup script* to that folder and *restart* the jail.
+The script in this example is a tiny web server that listens on port 8080 and reports the hostname and current timestamp.
 
 {{< highlight txt >}}
 # iocage exec j1 mkdir -p /usr/local/etc/rc.d
