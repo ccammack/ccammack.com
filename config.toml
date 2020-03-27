@@ -137,11 +137,11 @@ weight = 1
 identifier = "Home"
 url = "/"
 
-[[menu.main]]
-name = "Posts"
-weight = 20
-identifier = "posts"
-url = "/posts/"
+#[[menu.main]]
+#name = "Posts"
+#weight = 20
+#identifier = "posts"
+#url = "/posts/"
 
 [[menu.main]]
 name = "RSS"
