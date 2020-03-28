@@ -243,8 +243,8 @@ and this can also be used inside a jail to run programs when the jail starts.
 
 The file system for each jail is stored under */zroot/iocage/jails/* on the host, making it possible for the host system to access the jailed file systems directly if needed.
 
-To test the jail, *make sure the rc.d folder exists* in the jail, then *add an executable startup script* to that folder and *restart* the jail.
-The script in this example is a tiny web server that listens on port 8080 and reports the hostname and current timestamp.
+To test the jail, *make sure the rc.d folder exists* inside the jail, then *add an executable startup script* to that folder and *restart* the jail.
+The script in this example is a tiny web server that listens on port 8080 and reports the hostname and current date.
 
 {{< highlight txt >}}
 # iocage exec j1 mkdir -p /usr/local/etc/rc.d
@@ -255,6 +255,6 @@ while true ; data="`hostname`: `date`" ; length=`echo $data | wc -c` ; do echo -
 # iocage restart j1
 {{< /highlight >}}
 
-After the jail restarts, open http://192.168.0.254:8080/ in a web browser and make sure the web server reports the jail's name and current date.
+After the jail restarts, open http://192.168.0.254:8080/ in a web browser and make sure the web server responds.
 
 {{< figure src="one-line-web-server-test.png" alt="One-line web server test in Firefox">}}

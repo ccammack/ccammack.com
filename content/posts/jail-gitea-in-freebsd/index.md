@@ -1,7 +1,7 @@
 ---
 title: "Jail Gitea in FreeBSD"
 date: 2020-01-18T16:07:26-08:00
-tags: ["FreeBSD", "iocage", "jails", "git", "Gitea"]
+tags: ["FreeBSD", "iocage", "jails", "git"]
 ---
 
 Here's the bare minimum required to run a local instance of [**Gitea**](https://gitea.com/) inside a FreeBSD jail.
