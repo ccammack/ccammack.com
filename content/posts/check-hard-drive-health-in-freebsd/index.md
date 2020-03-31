@@ -114,7 +114,7 @@ ID# ATTRIBUTE_NAME          FLAGS    VALUE WORST THRESH FAIL RAW_VALUE
 
 The exact meaning of each SMART attribute is not standardized, and this particular drive only reports five of those six attributes, but the *RAW_VALUE*s in the right column are the ones to watch.
 
-On this removable drive, all four attributes report a *RAW_VALUE* of 0, so I'll put this one into production.
+On this removable drive, all five attributes report a *RAW_VALUE* of 0, so I'll put this one into production.
 
 ---
 
