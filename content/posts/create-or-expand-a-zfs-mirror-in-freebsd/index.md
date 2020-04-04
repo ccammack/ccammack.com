@@ -107,7 +107,7 @@ The last column in the output lists the automatically generated GPT labels for e
 Since the new drive has been assigned the device node ada**1**, run the command again and pipe the output into **sed** to replace the last **0** on each line with a **1** to generate new GPT label names for the new drive.
 
 {{< highlight txt >}}
-# gpart backup ada0 | sed -r 's/(.*)0/\11/'
+# gpart backup ada0 | sed -r 's/(^[[:digit:]].*)0/\11/'
 GPT 128
 1   freebsd-boot         40       1024 gptboot1
 2   freebsd-swap       2048    4194304 swap1
@@ -117,7 +117,7 @@ GPT 128
 If the output from sed looks correct, run the last command again and pipe those results into **gpart restore** to copy the partition layout to ada1.
 
 {{< highlight txt >}}
-# gpart backup ada0 | sed -r 's/(.*)0/\11/' | gpart restore -lF ada1
+# gpart backup ada0 | sed -r 's/(^[[:digit:]].*)0/\11/' | gpart restore -lF ada1
 {{< /highlight >}}
 
 Use **gpart show** to see that both drives now have the same layout.
