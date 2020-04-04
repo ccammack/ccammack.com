@@ -1,7 +1,7 @@
 ---
 title: "Install FreeBSD on a Headless Server Over SSH"
 date: 2018-05-21T04:15:51-07:00
-tags: ["FreeBSD", "Windows", "SSH"]
+tags: ["FreeBSD"]
 ---
 
 It can be inconvenient to connect a keyboard and monitor to a headless server tucked away in a closet just to install an operating system. 

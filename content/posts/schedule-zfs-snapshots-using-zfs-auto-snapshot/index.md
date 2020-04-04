@@ -1,7 +1,7 @@
 ---
 title: "Schedule ZFS Snapshots Using zfs-auto-snapshot"
 date: 2019-11-16T16:35:05-08:00
-tags: ["FreeBSD", "ZFS"]
+tags: ["FreeBSD", "ZFS", "Backups"]
 ---
 
 The [ZFS Tools](https://github.com/bdrewery/zfstools) package offers an easy way to automatically create a rotating set of ZFS snapshots for backup purposes.
@@ -48,7 +48,7 @@ See website and command usage output for further details.
 
 During installation, the zfstools installer prints a set of **cron** commands to create a basic snapshot rotation.
 It says that the lines can be added to **/etc/crontab**, which is the system crontab, but the 
-[FreeBSD handbook](https://www.freebsd.org/doc/handbook/configtuning-cron.html) says that the system crontab should not be modified.
+[FreeBSD handbook](https://www.freebsd.org/doc/handbook/configtuning-cron.html) warns that the system crontab should not be modified.
 Instead, the handbook recommends the creation of a separate user crontab to run cron jobs as **root**.
 
 > Note that the cron text given by the zfstools installer is formatted for the *system crontab*, in which the 6th column specifies the user **who** should run the cron job.
@@ -81,19 +81,22 @@ PATH=/etc:/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin
 
 The script will only create snapshots for datasets that have their **com.sun:auto-snapshot** property set to **true**, and
 the snapshot property will automatically be inherited by all descendants of that dataset unless disabled further down the tree.
+
 It is not necessary to snapshot every dataset on the system; [Michael W. Lucas](https://www.amazon.com/FreeBSD-Mastery-ZFS-Book-ebook/dp/B00Y32OHNM) recommends [disabling snapshots](https://mwl.io/archives/2140)
 for datasets that can be easily recreated if needed and for those for which old versions of the files are not generally useful:
 
 * /tmp
 * /usr/obj
-* /usr/src
 * /usr/ports
 * /usr/ports/distfiles
 * /usr/ports/packages
+* /usr/src
 * /var/crash
 * /var/empty
 * /var/run
 * /var/tmp
+
+After disabling snapshots for the non-essential descendants, some of which might not exist, enable them for **zroot**.
 
 {{< highlight txt >}}
 # zpool list
@@ -107,21 +110,41 @@ zroot/ROOT                               4.01G  3.50T    96K  none
 zroot/ROOT/default                       4.01G  3.50T  4.01G  /
 [...]
 
-# zfs set com.sun:auto-snapshot=true zroot
 # zfs set com.sun:auto-snapshot=false zroot/tmp
 # zfs set com.sun:auto-snapshot=false zroot/usr/obj
-# zfs set com.sun:auto-snapshot=false zroot/usr/src
 # zfs set com.sun:auto-snapshot=false zroot/usr/ports
 # zfs set com.sun:auto-snapshot=false zroot/usr/ports/distfiles
 # zfs set com.sun:auto-snapshot=false zroot/usr/ports/packages
+# zfs set com.sun:auto-snapshot=false zroot/usr/src
 # zfs set com.sun:auto-snapshot=false zroot/var/crash
 # zfs set com.sun:auto-snapshot=false zroot/var/empty
 # zfs set com.sun:auto-snapshot=false zroot/var/run
 # zfs set com.sun:auto-snapshot=false zroot/var/tmp
 
+# zfs set com.sun:auto-snapshot=true zroot
+
+# zfs get com.sun:auto-snapshot
+NAME                PROPERTY               VALUE    SOURCE
+zroot               com.sun:auto-snapshot  true     local
+zroot/ROOT          com.sun:auto-snapshot  true     inherited from zroot
+zroot/ROOT/default  com.sun:auto-snapshot  true     inherited from zroot
+zroot/tmp           com.sun:auto-snapshot  false    local
+zroot/usr           com.sun:auto-snapshot  true     inherited from zroot
+zroot/usr/home      com.sun:auto-snapshot  true     inherited from zroot
+zroot/usr/ports     com.sun:auto-snapshot  false    local
+zroot/usr/src       com.sun:auto-snapshot  false    local
+zroot/var           com.sun:auto-snapshot  true     inherited from zroot
+zroot/var/audit     com.sun:auto-snapshot  true     inherited from zroot
+zroot/var/crash     com.sun:auto-snapshot  false    local
+zroot/var/log       com.sun:auto-snapshot  true     inherited from zroot
+zroot/var/mail      com.sun:auto-snapshot  true     inherited from zroot
+zroot/var/tmp       com.sun:auto-snapshot  false    local
 {{< /highlight >}}
 
-That should be all it takes to get things running. Within 15 minutes or so, the first set of snapshots should begin to appear in the system with **zfs list -t snapshot**.
+That should be all it takes to get things running.
+
+Within 15 minutes or so, the first set of snapshots should begin to appear in the system and can be viewed with **zfs list -t snapshot**.
+Old snapshots will be automatically deleted from the system when their replacements arrive.
 
 {{< highlight txt >}}
 # zfs list -t snapshot
