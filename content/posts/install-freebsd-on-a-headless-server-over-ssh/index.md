@@ -15,7 +15,9 @@ To perform this [trick](https://obsigna.com/?p=409) using a Windows machine, you
 
 * a server with a wired LAN connection that has been set to automatically boot from a USB thumb drive in the BIOS
 
-* both the **FreeBSD-11.1-RELEASE-amd64-bootonly.iso** and **FreeBSD-11.1-RELEASE-amd64-memstick.img** files from [FreeBSD Release 11](https://download.freebsd.org/ftp/releases/amd64/amd64/ISO-IMAGES/)
+* both the [**FreeBSD-11.1-RELEASE-amd64-bootonly.iso**](http://ftp-archive.freebsd.org/pub/FreeBSD-Archive/old-releases/ISO-IMAGES/11.1/FreeBSD-11.1-RELEASE-amd64-bootonly.iso)
+and [**FreeBSD-11.1-RELEASE-amd64-memstick.img**](http://ftp-archive.freebsd.org/pub/FreeBSD-Archive/old-releases/ISO-IMAGES/11.1/FreeBSD-11.1-RELEASE-amd64-memstick.img)
+files from the [FreeBSD 11.1 Archive](http://ftp-archive.freebsd.org/pub/FreeBSD-Archive/old-releases/ISO-IMAGES/11.1/)
 
 * a USB thumb drive at least 1GB in size to hold the memstick image
 
