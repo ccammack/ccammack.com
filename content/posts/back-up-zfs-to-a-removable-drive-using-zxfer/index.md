@@ -213,7 +213,7 @@ zroot    928G   880M   927G        -         -     0%     0%  1.00x  ONLINE  -
 >If the amount of data to back up is very large, the snapshot cron job might run during the backup process and delete some of the older snapshots that zxfer was about to copy.
 If this happens, zxfer will give a warning and abort the backup.
 To continue, simply restart the backup as many times as needed to catch up with the current set of snapshots.
-After the initial backup completes, future runs will finish quickly because they will only back up incremental changes and this warning will be less likely to occcur.
+After the initial backup completes, future runs will finish more quickly and this warning will be less likely to occcur.
 {{< highlight txt >}}
 # zxfer -dFkPv -g 376 -I com.sun:auto-snapshot -R zroot backup/`hostname`
 [...]
