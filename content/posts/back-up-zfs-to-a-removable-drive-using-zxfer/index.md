@@ -172,13 +172,15 @@ The [zxfer manpage](https://www.freebsd.org/cgi/man.cgi?query=zxfer) provides se
 and the first example (**Ex1 - Backup	a pool (including snapshots and	properties)**) offers a good model for the use case described here,
 which is to replicate the entire *zroot* pool from the host system to the backup drive.
 
-This example relies on **zfs-auto-snapshot** to create snapshots for any dataset that has the ZFS property **com.sun:auto-snapshot** set to **true**.
+>This example relies on **zfs-auto-snapshot** to create snapshots for any dataset that has the ZFS property **com.sun:auto-snapshot** set to **true**.
 Because of this, when running **zxfer** to copy snapshots to a *locally-mounted* backup pool, it is critical to specify the option **-I com.sun:auto-snapshot** to prevent that property from being copied to the backup data.
-If this *ignore* option is not specified, zxfer will copy it to the data in the backup pool and the system will begin taking snapshots of the backup data also, and this can prevent files from replicating properly.
+If this option is not specified, zxfer will copy the property to the data in the backup pool and the system will begin taking snapshots of the backup data, which can prevent files from replicating properly.
 This option should not be necessary for replication to a remote server or if the backup is only applied to specific datasets rather than the entire zroot.
 
 To run the backup, use **zfs list | awk** to confirm that none of the dataset names contain spaces,
 then run the **zxfer** command to perform the actual backup operation followed by **zpool scrub** to make sure the backup pool is free of data errors.
+
+Use **zpool list** to compare the *ALLOC* sizes of the source and destination pools to see that they are approximately the same size after the backup.
 
 {{< highlight txt >}}
 # zfs list -H | cut -f1 | awk '/[[:space:]]/{printf("Error! Dataset name contains spaces: %s\n",$0)}'
@@ -201,13 +203,39 @@ config:
           gpt/backup.eli  ONLINE       0     0     0
 
 errors: No known data errors
+
+# zpool list
+NAME     SIZE  ALLOC   FREE  CKPOINT  EXPANDSZ   FRAG    CAP  DEDUP  HEALTH  ALTROOT
+backup   464G   880M   463G        -         -     0%     0%  1.00x  ONLINE  -
+zroot    928G   880M   927G        -         -     0%     0%  1.00x  ONLINE  -
+{{< /highlight >}}
+
+>If the amount of data to back up is very large, the snapshot cron job might run during the backup process and delete some of the older snapshots that zxfer was about to copy.
+If this happens, zxfer will give a warning and abort the backup.
+To continue, simply restart the backup as many times as needed to catch up with the current set of snapshots.
+After the initial backup completes, future runs will finish much faster because they will only back up incremental changes, so this warning will be less likely to occcur.
+{{< highlight txt >}}
+# zxfer -dFkPv -g 376 -I com.sun:auto-snapshot -R zroot backup/`hostname`
+[...]
+WARNING: could not send zroot/iocage/download/12.1-RELEASE@zfs-auto-snap_frequent-2020-04-07-00h30: does not exist
+cannot receive: failed to read from stream
+Error when zfs send/receiving.
+
+# zxfer -dFkPv -g 376 -I com.sun:auto-snapshot -R zroot backup/`hostname`
+[...]
+Writing backup info to location /backup/server/.zxfer_backup_info.zroot
 {{< /highlight >}}
 
 ---
 
-Before testing the restore process, add a new temporary file to **/usr/home** on the host to create a known difference.
+Before testing the restore process, use **zpool list** to make sure *zroot* has enough space to hold the entire *backup*, then add a new temporary file under **/usr/home** to create a known difference between the backup and host data.
 
 {{< highlight txt >}}
+# zpool list
+NAME     SIZE  ALLOC   FREE  CKPOINT  EXPANDSZ   FRAG    CAP  DEDUP  HEALTH  ALTROOT
+backup   464G   880M   463G        -         -     0%     0%  1.00x  ONLINE  -
+zroot    928G   880M   927G        -         -     0%     0%  1.00x  ONLINE  -
+
 # ls /usr/home/ccammack
 .cshrc          .login_conf     .mailrc         .shrc
 .login          .mail_aliases   .profile
@@ -235,12 +263,12 @@ zroot/tmp  com.sun:auto-snapshot  false                  local
 
 ---
 
-After the files are restored, use **diff -qr** to compare the contents of a snapshotted directory on the host and in the restored backup, such as **/usr/home**, to demonstrate their differences.
-The *hello* file will only appear on the host and will be missing from the restored backup data.
+After the files are restored, use **diff -qr** to compare the contents of **/usr/home** and **/tmp/zroot/usr/home** to demonstrate their differences.
+In this example, the temporary file named *hello* will only appear on the host and will be missing from the restored backup data.
 
 Destroy the restored **/tmp** dataset, then wait for the next execution of the [snapshot cronjob](/posts/schedule-zfs-snapshots-using-zfs-auto-snapshot/), which is 15 minutes (900 seconds) in this example.
 
-Run the **zxfer** *back up* command again to back up the new snapshots (including the new *hello* file), followed by the **zxfer** *restore* command to restore them to the **/tmp** folder.
+Run the **zxfer** *back up* command again to back up the new snapshots (including the new *hello* file), followed by the **zxfer** *restore* command to restore them to the **/tmp** folder again.
 
 Use **diff -qr** again to compare the contents of **/usr/home** and **/tmp/zroot/usr/home** to demonstrate that there are no differences and that the new *hello* file has been properly backed up.
 
@@ -262,7 +290,7 @@ Only in /usr/home/ccammack: hello
 {{< /highlight >}}
 
 The entire host file system can also be compared to the backup using **diff -qr**.
-Doing this shows that several directories are not in the snapshot set and that one of the log files has changed since the last backup.
+In this example, doing this confirms that several directories are correctly excluded from the snapshot set and that one of the log files has changed since the last backup.
 
 {{< highlight txt >}}
 # diff -qr / /tmp/zroot
@@ -278,7 +306,7 @@ Files /var/log/cron and /tmp/zroot/var/log/cron differ
 [...]
 {{< /highlight >}}
 
-Destroy the temporary dataset to clean up.
+To clean up, destroy the temporary dataset and remove the test file.
 
 {{< highlight txt >}}
 # ls /tmp/
@@ -288,6 +316,16 @@ Destroy the temporary dataset to clean up.
 
 # ls /tmp/
 .ICE-unix       .X11-unix       .XIM-unix       .font-unix
+
+# ls /usr/home/ccammack
+.cshrc          .login_conf     .mailrc         .shrc
+.login          .mail_aliases   .profile        hello
+
+# rm /usr/home/ccammack/hello
+
+# ls /usr/home/ccammack
+.cshrc          .login_conf     .mailrc         .shrc
+.login          .mail_aliases   .profile
 {{< /highlight >}}
 
 ---
