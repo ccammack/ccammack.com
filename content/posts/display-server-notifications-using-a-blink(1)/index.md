@@ -4,7 +4,7 @@ date: 2020-04-19T20:24:57-07:00
 tags: ["FreeBSD", "blink(1)"]
 ---
 
-The [blink(1)](https://blink1.thingm.com/) is an open source USB notification light than can be controlled from the command line.
+The [blink(1)](https://blink1.thingm.com/) is an open source USB notification light that can be controlled from the command line.
 
 <!--more-->
 
