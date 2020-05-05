@@ -175,7 +175,7 @@ which is to replicate the entire *zroot* pool from the host system to the backup
 >This example relies on **zfs-auto-snapshot** to create snapshots for any dataset that has the ZFS property **com.sun:auto-snapshot** set to **true**.
 Because of this, when running **zxfer** to copy snapshots to a *locally-mounted* backup pool, it is critical to specify the option **-I com.sun:auto-snapshot** to prevent that property from being copied to the backup data.
 If this option is not specified, zxfer will copy the property to the data in the backup pool and the system will begin taking snapshots of the backup data, which can prevent files from replicating properly.
-This option should not be necessary for replication to a remote server or if the backup is only applied to specific datasets rather than the entire zroot.
+This option may not be necessary for replication to a remote server or if the backup is only applied to specific datasets rather than the entire zroot.
 
 To run the backup, use **zfs list | awk** to confirm that none of the dataset names contain spaces,
 then run the **zxfer** command to perform the actual backup operation followed by **zpool scrub** to make sure the backup pool is free of data errors.

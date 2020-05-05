@@ -255,6 +255,6 @@ while true ; data="`hostname`: `date`" ; length=`echo $data | wc -c` ; do echo -
 # iocage restart j1
 {{< /highlight >}}
 
-After the jail restarts, open http://192.168.0.254:8080/ in a web browser and make sure the web server responds.
+After the jail restarts, open [http://192.168.0.254:8080](http://192.168.0.254:8080/) in a web browser and make sure the server responds with the jail's name and current date.
 
 {{< figure src="one-line-web-server-test.png" alt="One-line web server test in Firefox">}}
