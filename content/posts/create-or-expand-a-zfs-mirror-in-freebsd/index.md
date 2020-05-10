@@ -8,7 +8,13 @@ Here's a quick guide to convert a system created by the FreeBSD installer from a
 
 <!--more-->
 
-The test system was partitioned by selecting **Auto (ZFS)** in the installer and configured with the options **stripe: 1 disk**, **Encrypt Disks**, and **Encrypt Swap**.
+The test system was partitioned by selecting **Auto (ZFS)** in the installer and configuring these options:
+
+| Configure Options:|					|
+| --- 				| ---				|
+| Pool Type/Disks:	| **stripe: 1 disk**|
+| Encrypt Disks?	| **YES**			|
+| Encrypt Swap?		| **YES**			|
 
 {{< figure src="freebsd-installer-partitioning.png" alt="FreeBSD Installer > Partitioning">}}
 
@@ -16,7 +22,7 @@ The test system was partitioned by selecting **Auto (ZFS)** in the installer and
 
 First, back up your data.
 
-Second, use **zpool status** to examine the current ZFS pool. In this example, the **zroot** pool consists of the third partition (**p3**) of drive **ada0** and it has been encrypted with GELI (**.eli**).
+Second, use `zpool status` to examine the current ZFS pool. In this example, the **zroot** pool consists of the third partition (**p3**) of drive **ada0** and it has been encrypted with GELI (**.eli**).
 
 {{< highlight txt >}}
 $ su
@@ -35,7 +41,7 @@ config:
 errors: No known data errors
 {{< /highlight >}}
 
-Next, use **swapinfo** to examine the swap partition and notice that the swap uses the second partition (**p2**) of the same drive (**ada0**) and that it is also GELI-encrypted (**.eli**).
+Next, use `swapinfo` to examine the swap partition and notice that the swap uses the second partition (**p2**) of the same drive (**ada0**) and that it is also GELI-encrypted (**.eli**).
 
 {{< highlight txt >}}
 # swapinfo
@@ -43,7 +49,7 @@ Device          1K-blocks     Used    Avail Capacity
 /dev/ada0p2.eli   2097152        0  2097152     0%
 {{< /highlight >}}
 
-Also, use **geom** or **camcontrol** to get the drive's serial number for reference.
+Also, use `geom` or `camcontrol` to get the drive's serial number for reference.
 
 {{< highlight txt >}}
 # geom disk list ada0 | grep ident
@@ -53,7 +59,7 @@ Also, use **geom** or **camcontrol** to get the drive's serial number for refere
 serial number         WD-WMATV0942547
 {{< /highlight >}}
 
-Finally, run **gpart show** to display the complete partition layout for drive ada0.
+Finally, run `gpart show` to display the complete partition layout for drive ada0.
 
 {{< highlight txt >}}
 # gpart show ada0
@@ -66,7 +72,7 @@ Finally, run **gpart show** to display the complete partition layout for drive a
 {{< /highlight >}}
 
 At this point, copy the serial number of the new drive to be added to the system from the drive label.
-Insert the new drive into an empty bay and run **dmesg** to find the device node assigned to it.
+Insert the new drive into an empty bay and run `dmesg` to find the device node assigned to it.
 In this case, the new drive has been assigned **ada1**.
 
 {{< highlight txt >}}
@@ -80,7 +86,7 @@ ada1: Command Queueing enabled
 ada1: 953869MB (1953525168 512 byte sectors)
 {{< /highlight >}}
 
-Delete any existing partitions on the new drive using **gpart destroy**. The command will give an error if the drive doesn't contain any partitions.
+Delete any existing partitions on the new drive using `gpart destroy`. The command will give an error if the drive doesn't contain any partitions.
 
 {{< highlight txt >}}
 # gpart destroy -F ada1
@@ -90,9 +96,9 @@ ada1 destroyed
 gpart: arg0 'ada1': Invalid argument
 {{< /highlight >}}
 
-The easiest way to copy the partition layout from drive ada0 to drive ada1 is to use the  **gpart backup** and **restore** commands.
+The easiest way to copy the partition layout from drive ada0 to drive ada1 is to use the `gpart backup` and `gpart restore` commands.
 
-Run **gpart backup** to examine the partition layout on drive **ada0**.
+Run `gpart backup` to examine the partition layout on drive **ada0**.
 
 {{< highlight txt >}}
 # gpart backup ada0
@@ -102,9 +108,9 @@ GPT 128
 3    freebsd-zfs    4196352 1949327360 zfs0
 {{< /highlight >}}
 
-The last column in the output lists the automatically generated GPT labels for each of the three partitions on drive ada**0**, which is why the installer appended a **0** to the end of each GPT label.
+The last column in the output lists the automatically generated GPT labels for each of the three partitions on drive `ada0`, which is why the installer appended a `0` to the end of each GPT label.
 
-Since the new drive has been assigned the device node ada**1**, run the command again and pipe the output into **sed** to replace the last **0** on each line with a **1** to generate new GPT label names for the new drive.
+Since the new drive has been assigned the device node `ada1`, run the command again and pipe the output into `sed` to replace the last `0` on each line with a `1` to generate new GPT label names for the new drive.
 
 {{< highlight txt >}}
 # gpart backup ada0 | sed -r 's/(^[[:digit:]].*)0/\11/'
@@ -114,13 +120,13 @@ GPT 128
 3    freebsd-zfs    4196352 1949327360 zfs1
 {{< /highlight >}}
 
-If the output from sed looks correct, run the last command again and pipe those results into **gpart restore** to copy the partition layout to ada1.
+If the output from sed looks correct, run the last command again and pipe those results into `gpart restore` to copy the partition layout to ada1.
 
 {{< highlight txt >}}
 # gpart backup ada0 | sed -r 's/(^[[:digit:]].*)0/\11/' | gpart restore -lF ada1
 {{< /highlight >}}
 
-Use **gpart show** to see that both drives now have the same layout.
+Use `gpart show` to see that both drives now have the same layout.
 
 {{< highlight txt >}}
 # gpart show -l
@@ -139,7 +145,7 @@ Use **gpart show** to see that both drives now have the same layout.
   1953523712        1416        - free -  (708K)
 {{< /highlight >}}
 
-Since the root partition was GELI-encrypted during the installation, check the installer log to find out what options were used for the **geli init** and **attach** commands.
+Since the root partition was GELI-encrypted during the installation, check the installer log to find out what options were used for the `geli init` and `geli attach` commands.
 
 {{< highlight txt >}}
 # grep geli /var/log/bsdinstall_log
@@ -150,7 +156,7 @@ DEBUG: zfs_create_boot: geli attach -j - "ada0p3"
 [...]
 {{< /highlight >}}
 
-Run the **geli init** command for the new drive using slightly different options. Remove the **-J -** option to make the command interactive and change **"ada0p3"** to **"ada1p3"** to match the new drive.
+Run the `geli init` command for the new drive using slightly different options. Remove the `-J -` option to make the command interactive and change **"ada0p3"** to **"ada1p3"** to match the new drive.
 
 When requested, enter the same GELI password currently used to boot the system.
 
@@ -166,7 +172,7 @@ and can be restored with the following command:
         # geli restore /var/backups/ada1p3.eli ada1p3
 {{< /highlight >}}
 
-Mount the new GELI partition using the **geli attach** command, enter the password when requested and view the active containers with **geli status**.
+Mount the new GELI partition using the `geli attach` command, enter the password when requested and view the active containers with `geli status`.
 
 {{< highlight txt >}}
 # geli attach "ada1p3"
@@ -179,7 +185,7 @@ ada0p2.eli  ACTIVE  ada0p2
 ada1p3.eli  ACTIVE  ada1p3
 {{< /highlight >}}
 
-Use **zpool attach** to attach the new root partition to the existing stripe and convert it into a mirror. Write the boot code to the boot partition on the new drive as recommended by the output text.
+Use `zpool attach` to attach the new root partition to the existing stripe and convert it into a mirror. Write the boot code to the boot partition on the new drive as recommended by the output text.
 
 {{< highlight txt >}}
 # zpool status
@@ -211,7 +217,7 @@ bootcode written to ada1
 {{< /highlight >}}
 
 At this point, **/etc/fstab** contains an entry for the swap partition on drive ada0, which was added by the installer, but no entry for the swap partition on the newly added drive.
-Edit the file or use sed to add an entry for the new drive.
+Edit the file or use `sed` to add an entry for the new drive.
 
 {{< highlight txt >}}
 # cat /etc/fstab

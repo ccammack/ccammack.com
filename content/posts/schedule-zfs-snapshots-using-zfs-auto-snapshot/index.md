@@ -46,7 +46,7 @@ Or for specific intervals:
 See website and command usage output for further details.
 {{< /highlight >}}
 
-During installation, the zfstools installer prints a set of **cron** commands to create a basic snapshot rotation.
+During installation, the `zfstools` installer prints a set of `cron` commands to create a basic snapshot rotation.
 It says that the lines can be added to **/etc/crontab**, which is the system crontab, but the 
 [FreeBSD handbook](https://www.freebsd.org/doc/handbook/configtuning-cron.html) warns that the system crontab should not be modified.
 Instead, the handbook recommends the creation of a separate user crontab to run cron jobs as **root**.
@@ -54,10 +54,10 @@ Instead, the handbook recommends the creation of a separate user crontab to run 
 > Note that the cron text given by the zfstools installer is formatted for the *system crontab*, in which the 6th column specifies the user **who** should run the cron job.
 To use those lines in a *user crontab* instead, delete the 6th column of text from each line, which is the column containing the word **root**.
 
-To create a user crontab for the root user, run **crontab -e -u root**, then add the header lines specified in section
+To create a user crontab for the root user, run `crontab -e -u root`, then add the header lines specified in section
 [11.3.1 of the handbook](https://www.freebsd.org/doc/handbook/configtuning-cron.html),
 followed by the crontab lines (without the 6th column) copied from the zfstools installer output.
-After creating the root user crontab, double-check the schedule using **crontab -l**.
+After creating the root user crontab, double-check the schedule using `crontab -l`.
 
 {{< highlight txt >}}
 # crontab -e -u root
@@ -143,7 +143,7 @@ zroot/var/tmp       com.sun:auto-snapshot  false    local
 
 That should be all it takes to get things running.
 
-Within 15 minutes or so, the first set of snapshots should begin to appear in the system and can be viewed with **zfs list -t snapshot**.
+Within 15 minutes or so, the first set of snapshots should begin to appear in the system and can be viewed with `zfs list -t snapshot`.
 Old snapshots will be automatically deleted from the system when their replacements arrive.
 
 {{< highlight txt >}}

@@ -30,8 +30,8 @@ files from the [FreeBSD 11.1 Archive](http://ftp-archive.freebsd.org/pub/FreeBSD
 Here are the steps to follow:
 
 1. Find an unused IP address on the LAN that can be hard-coded into the FreeBSD installer.
-Check the settings page on the router to find one that's not already reserved, or pick a random IP in the local address range and **ping** it from the Windows console to make sure nothing answers.
-For many home networks, **192.168.0.254** is likely unused and might make a good candidate.
+Check the settings page on the router to find one that's not already reserved, or pick a random IP in the local address range and `ping` it from the Windows console to make sure nothing answers.
+For many home networks, `192.168.0.254` is likely unused and might make a good candidate.
 
 	{{< highlight txt >}}
 λ ping 192.168.0.254
@@ -76,18 +76,18 @@ VM "freebsd" has been successfully started.
 
 	{{< figure src="freebsd-welcome-screen.png" alt="FreeBSD Installer Welcome Screen">}}
 
-1. Press the **Esc** key to exit the installer and login as **root**.
+1. Press the `Esc` key to exit the installer and login as **root**.
 	{{< figure src="login-as-root.png" alt="Press the [Esc] key and login as root">}}
 
-1. Press the **Right Ctrl** key to get mouse control back, then open the VirtualBox menu for **Devices>USB Devices** and select the USB drive with the **memstick** image on it.
+1. Press the `Right Ctrl` key to get mouse control back, then open the VirtualBox menu for **Devices>USB Devices** and select the USB drive with the **memstick** image on it.
 If the USB drive does not appear in the menu, remove it and re-insert it.
 	{{< figure src="attaching-usb-memstick.png" alt="Use the VirtualBox menu to attach the USB memstick">}}
 
 1. The USB drive will attach to the VM within in a few seconds and the device info will appear in the console in bold white text.
-In this example, the device name appears as **da0**. Press **Enter** to get the command prompt back.
+In this example, the device name appears as **da0**. Press `Enter` to get the command prompt back.
 	{{< figure src="attached-usb-memstick.png" alt="After attaching the USB memstick to VirtualBox">}}
 
-1. To list the partitions on the USB drive, enter **mount /dev/da0** and press the **Tab** key to display them using shell completion.
+1. To list the partitions on the USB drive, enter `mount /dev/da0` and press the `Tab` key to display them using shell completion.
 	{{< highlight txt >}}
 root@:~ # mount /dev/da0
 da0%	da0p1% da0p2% da0p3% da0p4%
@@ -103,7 +103,7 @@ mount: /dev/da0p2: Input/output error
 root@:~ # mount /dev/da0p3 /mnt
 	{{< /highlight >}}
 
-1. Run **ls /mnt** to ensure that the root partition has mounted properly and contains the usual directories such as **bin**, **boot**, **dev**, **tmp**, **usr** and **var**.
+1. Run `ls /mnt` to ensure that the root partition has mounted properly and contains the usual directories such as **bin**, **boot**, **dev**, **tmp**, **usr** and **var**.
 	{{< highlight txt >}}
 root@:~ # ls /mnt
 .cshrc			HARDWARE.TXT	boot			media		sbin
@@ -114,7 +114,7 @@ ERRATA.TXT		RELNOTES.TXT	lib				rescue		var
 HARDWARE.HTM	bin				libexec			root
 	{{< /highlight >}}
 
-1. Modify the installer settings to hard-code the selected IP address and enable root logins over SSH, then unmount the USB thumb drive and shutdown the VM.
+1. Modify the installer settings to hard-code the selected IP address and enable root logins over `ssh`, then unmount the USB thumb drive and shutdown the VM.
 	{{< highlight txt >}}
 root@:~ # cd /mnt/etc
 root@:/mnt/etc # rm rc.local
@@ -133,7 +133,7 @@ root@:~ # shutdown -p now
 	{{< /highlight >}}
 
 1. Eject the USB thumb drive from the Windows machine and insert it into the server.
-Boot the server, and within a couple of minutes, it should be possible to **SSH** as **root** from the Windows machine to the server using the **192.168.0.254** address selected earlier.
+Boot the server, and within a couple of minutes, it should be possible to `ssh` as **root** from the Windows machine to the server using the `192.168.0.254` address selected earlier.
 	{{< highlight txt >}}
 λ ssh root@192.168.0.254
 
@@ -165,7 +165,7 @@ FreeBSD directory layout:      man hier
 Edit /etc/motd to change this login announcement.
 	{{< /highlight >}}
 
-1. After logging in over SSH, run the **bsdinstall** command and step through the wizard to [install FreeBSD on the server](https://www.freebsd.org/doc/en_US.ISO8859-1/books/handbook/using-bsdinstall.html).
+1. After logging in over SSH, run the `bsdinstall` command and step through the wizard to [install FreeBSD on the server](https://www.freebsd.org/doc/en_US.ISO8859-1/books/handbook/using-bsdinstall.html).
 (During the installation, you must enable SSH and create at least one regular user account because FreeBSD disables password-based SSH access for the root user by default.)
 
 	{{< highlight txt >}}

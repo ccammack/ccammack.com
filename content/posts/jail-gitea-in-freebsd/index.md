@@ -8,7 +8,7 @@ Here's the bare minimum required to run a local instance of [**Gitea**](https://
 
 <!--more-->
 
-First, use **iocage** to create a jail called *git*.
+First, use `iocage` to create a jail called *git*.
 
 {{< highlight txt >}}
 $ su
@@ -89,7 +89,7 @@ root@git:~ # sed -i .tmp 's/^HTTP_ADDR.*=.*$/HTTP_ADDR = 192.168.0.112/g' /usr/l
 root@git:~ # sed -i .tmp 's/^DISABLE_REGISTRATION.*=.*$/DISABLE_REGISTRATION = true/g' /usr/local/etc/gitea/conf/app.ini
 {{< /highlight >}}
 
-Use **gitea generate secret** to replace the three secret configuration values.
+Use `gitea generate secret` to replace the three secret configuration values.
 
 {{< highlight txt >}}
 root@git:~ # sed -i .tmp 's/^JWT_SECRET.*=.*$/JWT_SECRET = '`gitea generate secret JWT_SECRET`'/g' /usr/local/etc/gitea/conf/app.ini
@@ -97,7 +97,7 @@ root@git:~ # sed -i .tmp 's/^INTERNAL_TOKEN.*=.*$/INTERNAL_TOKEN = '`gitea gener
 root@git:~ # sed -i .tmp 's/^SECRET_KEY.*=.*$/SECRET_KEY = '`gitea generate secret SECRET_KEY`'/g' /usr/local/etc/gitea/conf/app.ini
 {{< /highlight >}}
 
-Finally, **diff** the backup and current versions of the configration file to make sure the changes look correct.
+Finally, `diff` the backup and current versions of the configration file to make sure the changes look correct.
 
 {{< highlight txt >}}
 root@git:~ # diff /usr/local/etc/gitea/conf/app.ini.bak /usr/local/etc/gitea/conf/app.ini
@@ -140,7 +140,7 @@ root@git:~ # tail -1 /var/log/gitea/gitea.log
 2020/01/24 19:52:18 ...ce/gracehttp/http.go:142:Serve() [I] Serving 192.168.0.112:3000 with pid 14836
 {{< /highlight >}}
 
-To register new users at the command line, switch to the *git* user and call [**gitea admin create-user**](https://docs.gitea.io/en-us/command-line/).
+To register new users at the command line, switch to the *git* user and call [`gitea admin create-user`](https://docs.gitea.io/en-us/command-line/).
 Specify the required *user name*, *password* and *email address* parameters.
 
 {{< highlight txt >}}
@@ -154,6 +154,6 @@ $ gitea admin create-user --username ccammack --password 1234 --email ccammack@e
 New user 'ccammack' has been successfully created!
 {{< /highlight >}}
 
-Open http://192.168.0.112:3000/ in a broswer and sign in with the username and password.
+Open [http://192.168.0.112:3000](http://192.168.0.112:3000) in a broswer and sign in with the username and password.
 
 {{< figure src="gitea-main-page.png" alt="Gitea main page">}}

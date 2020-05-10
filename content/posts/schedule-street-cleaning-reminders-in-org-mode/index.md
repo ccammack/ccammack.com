@@ -12,7 +12,7 @@ that represent concepts such as the *4th Tuesday of the month*, which makes it p
 
 <!--more-->
 
-For example, the **diary-float** entry below represents the *4th Tuesday of each month*:
+For example, the `diary-float` entry below represents the *4th Tuesday of each month*:
 
 * the value **t** is a placeholder that represents *all months*
 * the value **2** represents *Tuesday* (Sunday=0, Monday=1, ..., Saturday=6)
@@ -29,7 +29,7 @@ Use two separate entries to represent both the *2nd and 4th Tuesdays of each mon
 %%(diary-float t 2 4) Today is the 4th Tuesday of the month
 {{< /highlight >}}
 
-To get a reminder one day ahead of time, wrap the diary-float expression with **diary-remind** and specify **-1** days as the last parameter.
+To get a reminder one day ahead of time, wrap the diary-float expression with `diary-remind` and specify **-1** days as the last parameter.
 
 {{< highlight txt >}}
 %%(diary-remind '(diary-float t 2 4) -1) Monday before the 4th Tuesday
@@ -55,7 +55,7 @@ Putting it all together, the street cleaning section of my org file looks like t
 {{< /highlight >}}
 
 Any entry marked as a **COMMENT** will not appear in the agenda.
-Each time the car moves to a new location, toggle the COMMENT off for the new location's entry using **Ctrl-C ;** and toggle it on for the rest of the entries using **Ctrl-C ;**.
+Each time the car moves to a new location, toggle the COMMENT off for the new location's entry using `Ctrl-C ;` and toggle it on for the rest of the entries using `Ctrl-C ;`.
 
 Marking the new location's entry as **TODO** isn't required, but it makes the reminder stand out more in the agenda view.
 

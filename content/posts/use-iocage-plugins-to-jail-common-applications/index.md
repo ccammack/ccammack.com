@@ -9,7 +9,7 @@ to create pre-configured container jails for many [common applications](https://
 
 <!--more-->
 
-Use **iocage list** to see the available applications.
+Use `iocage list` to see the available applications.
 
 {{< highlight txt >}}
 $ su
@@ -55,7 +55,7 @@ Next, install the lastest master branch of iocage from source.
 # cd iocage && make install
 {{< /highlight >}}
 
-Try **iocage list** again.
+Try `iocage list` again.
 
 {{< highlight txt >}}
 # iocage -v
@@ -91,7 +91,7 @@ Using "master" branch for plugin, this may not work with your RELEASE
 [...]
 {{< /highlight >}}
 
-To create a jailed application, such as [NextCloud](https://nextcloud.com/), call **iocage fetch** and use the **-P** option to specify the **PKG** name from the list above.
+To create a jailed application, such as [NextCloud](https://nextcloud.com/), call `iocage fetch` and use the **-P** option to specify the **PKG** name from the list above.
 To make the jail request its IP address using DHCP, also specify the **bpf** and **dhcp** parameters.
 
 {{< highlight txt >}}

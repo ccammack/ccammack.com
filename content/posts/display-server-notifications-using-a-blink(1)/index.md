@@ -60,6 +60,7 @@ Likewise, use `--red` to set the LED color to solid red. Reset the device using 
 {{< highlight txt >}}
 # blink1-tool --red
 [...]
+
 # blink1-tool --off
 [...]
 {{< /highlight >}}

@@ -140,7 +140,7 @@ Last login: Sat Feb  2 10:14:13 2019 from 192.168.0.103
 #### Assign a static IP to the device (optional)
 
 1. This step is not required for most situations, but I needed it for my application.
-Select an unused local IP address (192.168.0.254) and use the **ip** command to find the name of the ethernet device (**eth0**).
+Select an unused local IP address (192.168.0.254) and use the `ip` command to find the name of the ethernet device (**eth0**).
 
 	{{< highlight txt >}}
 ccammack@odroid:~$ sudo ip a
@@ -174,14 +174,14 @@ network:
       nameservers:
         addresses: [9.9.9.9,192.168.0.1]
 {{< /highlight >}}
-For example, using **nano** to edit the configuration file looks like this. When finished, press **Ctrl-S** to save and **Ctrl-X** to exit.
+For example, using `nano` to edit the configuration file looks like this. When finished, press `Ctrl-S` to save and `Ctrl-X` to exit.
 
 	{{< highlight txt >}}
 ccammack@odroid:~$ sudo nano /etc/netplan/01-netcfg.yaml
 {{< /highlight >}}
 {{< figure src="configure-netplan.png" alt="Edit netplan configuration using nano">}}
 
-1. Apply the network configuration changes using **netplan**, which will hang for several seconds and then reset the connection.
+1. Apply the network configuration changes using `netplan`, which will hang for several seconds and then reset the connection.
 Log back in again using the new static IP address.
 {{< highlight txt >}}
 ccammack@odroid:~$ sudo netplan apply
@@ -204,7 +204,7 @@ Last login: Sun Feb  3 03:14:56 2019 from 192.168.0.103
 
 #### Partition and format the SATA drive
 
-1. Find the name of the SATA drive (**/dev/sda**) using **fdisk -l**.
+1. Find the name of the SATA drive (**/dev/sda**) using `fdisk -l`.
 
 	{{< highlight txt >}}
 ccammack@odroid:~$ sudo fdisk -l
@@ -217,7 +217,7 @@ Disklabel type: dos
 Disk identifier: 0xdca13c75
 {{< /highlight >}}
 
-2. Run fdisk on that drive and use the **d** command a few times to delete any existing partitions.
+2. Run fdisk on that drive and use the `d` command a few times to delete any existing partitions.
 
 	{{< highlight txt >}}
 ccammack@odroid:~$ sudo fdisk /dev/sda
@@ -235,7 +235,7 @@ No partition is defined yet!
 Could not delete partition 4846342
 {{< /highlight >}}
 
-3. Use the **n** command to create a new **p**rimary partition with default settings and allow fdisk to clean up old drive artifacts if it finds any.
+3. Use the `n` and `p` commands to create a new primary partition with default settings and allow fdisk to clean up old drive artifacts if it finds any.
 	{{< highlight txt >}}
 Command (m for help): n
 Partition type
@@ -262,7 +262,7 @@ Hex code (type L to list all codes): 83
 Changed type of partition 'Linux' to 'Linux'.
 {{< /highlight >}}
 
-1. Write the new partition with w.
+1. Write the new partition with `w`.
 		{{< highlight txt >}}
 Command (m for help): w
 The partition table has been altered.
@@ -270,7 +270,7 @@ Calling ioctl() to re-read partition table.
 Syncing disks.
 {{< /highlight >}}
 
-1. Run **fdisk -l** again and note that **/dev/sda** now contains a new Linux partitition called **/dev/sda1**.
+1. Run `fdisk -l` again and note that **/dev/sda** now contains a new Linux partitition called **/dev/sda1**.
 		{{< highlight txt >}}
 ccammack@odroid:~$ sudo fdisk -l /dev/sda
 Disk /dev/sda: 298.1 GiB, 320072933376 bytes, 625142448 sectors
@@ -284,7 +284,7 @@ Device     Boot Start       End   Sectors   Size Id Type
 /dev/sda1        2048 625142447 625140400 298.1G 83 Linux
 {{< /highlight >}}
 
-1. Format the new partition using **mkfs**, which may take some time to to finish.
+1. Format the new partition using `mkfs`, which may take some time to to finish.
 		{{< highlight txt >}}
 ccammack@odroid:~$ sudo mkfs -t ext4 /dev/sda1
 mke2fs 1.44.1 (24-Mar-2018)
@@ -302,7 +302,7 @@ Writing superblocks and filesystem accounting information: done
 
 #### Automatically mount the SATA drive at startup
 
-1. Use **blkid** to display the partition's **UUID** and copy it for use in the next step.
+1. Use `blkid` to display the partition's `UUID` and copy it for use in the next step.
 
 	{{< highlight txt >}}
 ccammack@odroid:~$ sudo blkid /dev/sda1
@@ -311,8 +311,8 @@ ccammack@odroid:~$ sudo blkid /dev/sda1
 
 1. Create a mount point for the partition (**/media/hdd**).
 Append the partition's settings to the end of **/etc/fstab** so that it will be initialized properly when mounted.
-Use the **mount** command to mount the partition manually and make sure that it does using the **df** command.
-Change the owner of the mount point to the recently added user (**ccammack**).
+Use the `mount` command to mount the partition manually and make sure that it does using the `df` command.
+Change the owner of the mount point to the recently added user.
 
 	{{< highlight txt >}}
 ccammack@odroid:~$ sudo mkdir -p /media/hdd
@@ -344,7 +344,7 @@ create mask = 0660
 directory mask = 0771
 read only = no
 {{< /highlight >}}
-For example, using **nano** to edit the configuration file looks like this. When finished, press **Ctrl-S** to save and **Ctrl-X** to exit.
+For example, using `nano` to edit the configuration file looks like this. When finished, press `Ctrl-S` to save and `Ctrl-X` to exit.
 
 	{{< highlight txt >}}
 ccammack@odroid:~$ sudo nano /etc/samba/smb.conf
@@ -357,7 +357,7 @@ ccammack@odroid:~$ sudo /etc/init.d/smbd restart
 [ ok ] Restarting smbd (via systemctl): smbd.service.
 {{< /highlight >}}
 
-1. Samba uses a different password database than the one used by the system, so run the **smbpasswd** command to set the Samba password for the user.
+1. Samba uses a different password database than the one used by the system, so run the `smbpasswd` command to set the Samba password for the user.
 For my application, I used the same password for both system login and Samba access.
 	{{< highlight txt >}}
 

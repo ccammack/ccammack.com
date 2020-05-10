@@ -10,7 +10,8 @@ tags: ["C++", "Notepad++", "Windows"]
 [comment]: # (	https://github.com/notepad-plus-plus/notepad-plus-plus/issues/1228#issuecomment-388978543	)
 [comment]: # (	https://github.com/bfridkis/Building-Notepad-Plus-Plus-from-Source-A-Beginners-Guide		)
 
-I don't try to build [Notepad++](https://notepad-plus-plus.org/) from source very often, and I've never had much luck following the instructions on the [github page](https://github.com/notepad-plus-plus/notepad-plus-plus), so here's how I do it instead.
+I don't try to build [Notepad++](https://notepad-plus-plus.org/) from source very often, and I've never had much luck following
+the instructions on the [github page](https://github.com/notepad-plus-plus/notepad-plus-plus), so here's how I do it instead.
 
 <!--more-->
 
@@ -19,7 +20,8 @@ Instead, just put a recent copy of **SciLexer.dll** into the correct folder and 
 
 * Strictly speaking, this is not the right way to do it, but it has worked well enough for me that I have never noticed any missing functionality or other issues.
 
-* Although the [official build instructions](https://github.com/notepad-plus-plus/notepad-plus-plus) refer to **VS2013**, I was unable to build the solution using Visual Studio Community Edition **2013**, which should be similar.
+* Although the [official build instructions](https://github.com/notepad-plus-plus/notepad-plus-plus) refer to **VS2013**,
+I was unable to build the solution using Visual Studio Community Edition **2013**, which should be similar.
 However, it built perfectly the first time without any trouble using Visual Studio Community Edition **2015**, so that's what I recommend here.
 
 * Notepad++ comes in both portable and installer versions, but I prefer to use the installer because it automatically adds an **Edit with Notepad++** option to the right-click file context menu.

@@ -8,8 +8,8 @@ The release of FreeBSD 12 with VNET support has made it easy to jail a Samba fil
 
 <!--more-->
 
-To create a jail that uses DHCP to request an IP address from the router, call **iocage create** and specify the **bpf** and **dhcp** parameters.
-Alternatively, to create a jail with a static IP address, call **iocage create** and specify the **defaultrouter** and **ip4_addr** parameters.
+To create a jail that uses DHCP to request an IP address from the router, call `iocage create` and specify the **bpf** and **dhcp** parameters.
+Alternatively, to create a jail with a static IP address, call `iocage create` and specify the **defaultrouter** and **ip4_addr** parameters.
 
 In this example, I create a new jail named **media** that relies on DHCP to reserve IP address 192.168.0.**108** on startup.
 
@@ -37,7 +37,7 @@ media: vnet requires defaultrouter, using 192.168.0.1
 +-----+-------+-------+--------------+------+
 {{< /highlight >}}
 
-Inside the jail, use **pkg search** to find the latest version of Samba.
+Inside the jail, use `pkg search` to find the latest version of Samba.
 
 {{< highlight txt >}}
 # iocage exec media pkg search samba
@@ -55,7 +55,7 @@ samba410-4.10.8                Free SMB/CIFS and AD/DC server and client for Uni
 samba48-4.8.12_4               Free SMB/CIFS and AD/DC server and client for Unix
 {{< /highlight >}}
 
-Samba **4.10.8** seems to be the latest package, so use **pkg install** to install it.
+Samba **4.10.8** seems to be the latest package, so use `pkg install` to install it.
 
 {{< highlight txt >}}
 # iocage exec media pkg install -y samba410
@@ -134,7 +134,7 @@ Create the folder you intend to share, along with an extra folder and file for t
 # iocage exec media chown -R ccammack:ccammack /home/ccammack/media
 {{< /highlight >}}
 
-Use **ifconfig** to get the name of the jail's interface, which is **epair0b** in this case.
+Use `ifconfig` to get the name of the jail's interface, which is **epair0b** in this case.
 
 {{< highlight txt >}}
 # iocage exec media ifconfig
@@ -157,7 +157,7 @@ epair0b: flags=8843<UP,BROADCAST,RUNNING,SIMPLEX,MULTICAST> metric 0 mtu 1500
         nd6 options=21<PERFORMNUD,AUTO_LINKLOCAL>
 {{< /highlight >}}
 
-Inside the jail, create the samba config file (**/usr/local/etc/smb4.conf**) using **ee** or **vi**.
+Inside the jail, create the samba config file (**/usr/local/etc/smb4.conf**) using `ee` or `vi`.
 
 {{< highlight txt >}}
 # iocage exec media ee /usr/local/etc/smb4.conf
@@ -183,7 +183,7 @@ path = /home/ccammack/media
 #writable = yes
 {{< /highlight >}}
 
-Use **pdbedit** to map the user account and password to the Samba database.
+Use `pdbedit` to map the user account and password to the Samba database.
 
 {{< highlight txt >}}
 # iocage exec media pdbedit --create --user=ccammack
@@ -214,7 +214,7 @@ Bad password count  : 0
 Logon hours         : FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
 {{< /highlight >}}
 
-Use **sysrc** to add **samba_server_enable=YES** to the jail's **rc.conf** and start the samba server immediately.
+Use `sysrc` to add `samba_server_enable=YES` to the jail's **rc.conf** and start the samba server immediately.
 
 {{< highlight txt >}}
 # iocage exec media sysrc samba_server_enable=YES

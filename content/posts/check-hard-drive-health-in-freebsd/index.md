@@ -5,7 +5,7 @@ tags: ["FreeBSD"]
 ---
 
 It's wise to check a new hard drive for [S.M.A.R.T.](https://en.wikipedia.org/wiki/S.M.A.R.T.) errors before using it the first time and also to keep an eye on it after it goes into production.
-In FreeBSD, the [Smartmontools](https://www.smartmontools.org/) package provides a way to check drives for errors on demand using **smartctl** and on schedule using **smartd**.
+In FreeBSD, the [Smartmontools](https://www.smartmontools.org/) package provides a way to check drives for errors on demand using `smartctl` and on schedule using `smartd`.
 
 <!--more-->
 
@@ -43,7 +43,7 @@ To have smartd start at boot
         echo 'smartd_enable="YES"' >> /etc/rc.conf
 {{< /highlight >}}
 
-Use **smartctl --scan** to list the drives recognized by smartctl.
+Use `smartctl --scan` to list the drives recognized by smartctl.
 
 {{< highlight txt >}}
 # smartctl --scan
@@ -53,9 +53,9 @@ Use **smartctl --scan** to list the drives recognized by smartctl.
 /dev/ada3 -d atacam # /dev/ada3, ATA device
 {{< /highlight >}}
 
-In this system, drives *ada0*-*ada2* make up a 3-drive ZFS mirror and drive *ada3* is a removable drive that will be used for backups.
+In this system, drives **ada0**-**ada2** make up a 3-drive ZFS mirror and drive **ada3** is a removable drive that will be used for backups.
 
-To check the SMART status of a new drive before putting it into service the first time, run the *long* test using **smartctl -t long**.
+To check the SMART status of a new drive before putting it into service the first time, run the *long* test using `smartctl -t long`.
 
 {{< highlight txt >}}
 # smartctl -t long /dev/ada3
@@ -72,7 +72,7 @@ Test will complete after Sat Mar 28 22:25:41 2020
 Use smartctl -X to abort test.
 {{< /highlight >}}
 
-The software estimates and reports how long it will take to run as it begins.  Use **smartctl -a** to keep an eye on its progress.
+The software estimates and reports how long it will take to run as it begins.  Use `smartctl -a` to keep an eye on its progress.
 
 {{< highlight txt >}}
 # smartctl -a /dev/ada3 | grep remaining
@@ -100,7 +100,7 @@ From what I can find, these are the most important attributes to monitor for an 
 |197 |Current Pending Sector Count |
 |198 |Offline Uncorrectable        |
 
-SMART error 199 (UDMA CRC Error Count) might indicate a problem with the drive cable or port, so it's worth checking that one too for a new drive.
+SMART error 199 (*UDMA CRC Error Count*) might indicate a problem with the drive cable or port, so it's worth checking that one too for a new drive.
 
 {{< highlight txt >}}
 # smartctl -f brief -a /dev/ada3 | grep -E '^(ID#| {2}5|187|188|197|198|199)'
@@ -118,9 +118,9 @@ On this removable drive, all five attributes report a *RAW_VALUE* of 0, so I'll 
 
 ---
 
-The output text given by the installer also explains how to set up **smartd** for regular automatic reporting of SMART attributes.
+The output text given by the installer also explains how to set up `smartd` for regular automatic reporting of SMART attributes.
 
-To configure the system to run **smartd**, create the configuration file */usr/local/etc/smartd.conf* and add the system drives to it.
+To configure the system to run `smartd`, create the configuration file */usr/local/etc/smartd.conf* and add the system drives to it.
 
 {{< highlight txt >}}
 # touch /usr/local/etc/smartd.conf
@@ -137,7 +137,7 @@ To configure the system to run **smartd**, create the configuration file */usr/l
 
 > The installation also includes an extensive sample configuration file at /usr/local/etc/smartd.conf.sample, but the most basic setup just requires a list of drives to monitor.
 
-Next, use **sysrc** to add **smartd_enable=YES** to **rc.conf** and then start the service manually.
+Next, use `sysrc` to add `smartd_enable=YES` to **rc.conf** and then start the service manually.
 
 {{< highlight txt >}}
 # sysrc smartd_enable=YES

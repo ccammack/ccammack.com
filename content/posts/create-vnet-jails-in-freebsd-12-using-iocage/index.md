@@ -4,11 +4,11 @@ date: 2019-07-09T19:14:43-07:00
 tags: ["FreeBSD", "iocage", "jails"]
 ---
 
-[FreeBSD 12](https://www.freebsd.org/) enables VNET support by default, which gives each jail its own network stack and makes it easy to jail individual applications using [iocage](https://iocage.io/).
+[FreeBSD 12](https://www.freebsd.org/) enables VNET support by default, which gives each jail its own network stack and makes it easy to jail individual applications using [`iocage`](https://iocage.io/).
 
 <!--more-->
 
-To get started, make sure FreeBSD 12.0-RELEASE is installed and that the system uses ZFS, which is required by iocage:
+To get started, make sure FreeBSD 12.0-RELEASE is installed and that the system uses ZFS, which is required by `iocage`:
 
 {{< highlight txt >}}
 $ uname -a
@@ -51,7 +51,7 @@ nameserver 192.168.0.1
 > To try this in a VM rather than on real hardware, bridge the network adapter and enable promiscuous mode.
 {{< figure src="virtual-box-network-settings.png" alt="VirtualBox network settings">}}
 
-Update the system and install iocage.
+Update the system and install `iocage`.
 
 {{< highlight txt >}}
 $ su
@@ -64,7 +64,7 @@ Password:
 [...]
 {{< /highlight >}}
 
-Examine **rc.conf** or run **ifconfig** to get the name of the network interface, which is **bge0** in this case.
+Examine **rc.conf** or run `ifconfig` to get the name of the network interface, which is **bge0** in this case.
 
 {{< highlight txt >}}
 # cat /etc/rc.conf
@@ -123,7 +123,7 @@ net.link.bridge.pfil_bridge=0  # Packet filter on the bridge interface
 net.link.bridge.pfil_member=0  # Packet filter on the member interface
 {{< /highlight >}}
 
-**Activate** the appropriate zpool to tell iocage where to put files and **fetch** the lastest system release.
+`Activate` the appropriate zpool to tell iocage where to put files and `fetch` the lastest system release.
 
 {{< highlight txt >}}
 # zpool list
@@ -139,7 +139,7 @@ Fetching: 12.0-RELEASE
 [...]
 {{< /highlight >}}
 
-To create a jail that uses DHCP to request an IP address from the router, call **iocage create** and specify the **bpf** and **dhcp** parameters.
+To create a jail that uses DHCP to request an IP address from the router, call `iocage create` and specify the **bpf** and **dhcp** parameters.
 In this example, the router assigned IP address 192.168.0.**116** to jail **j0** on startup.
 
 {{< highlight txt >}}
@@ -154,7 +154,7 @@ j0 successfully created!
   + DHCP Address: 192.168.0.116/24
 {{< /highlight >}}
 
-Alternatively, to create a jail with a static IP address, call **iocage create** and specify the **defaultrouter** and **ip4_addr** parameters.
+Alternatively, to create a jail with a static IP address, call `iocage create` and specify the **defaultrouter** and **ip4_addr** parameters.
 In this example, I have manually assigned IP address 192.168.0.**254** to jail **j1**.
 
 {{< highlight txt >}}
@@ -194,7 +194,7 @@ On systems with more complicated network setups, use the jail's **interfaces** p
 # iocage set interfaces="vnet0:bridge0" j0
 {{< /highlight >}}
 
-From another machine on the network, **ping** the jails to make sure they are working
+From another machine on the network, `ping` the jails to make sure they are working
 
 {{< highlight txt >}}
 C:\Windows\System32>ping 192.168.0.116
@@ -224,7 +224,7 @@ Approximate round trip times in milli-seconds:
     Minimum = 0ms, Maximum = 1ms, Average = 0ms
 {{< /highlight >}}
 
-Use **iocage list** to see the status of the jails.
+Use `iocage list` to see the status of the jails.
 
 {{< highlight txt >}}
 # iocage list

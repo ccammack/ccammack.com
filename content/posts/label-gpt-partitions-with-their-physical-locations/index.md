@@ -24,7 +24,7 @@ GPT labels are restricted to 15 characters in length, so devise a naming scheme 
 In my case, I'm using the prefix *zfs-* followed by two digits for the bay number and the last 8 characters of the serial number, giving labels such as *zfs-00-V0942547*.
 
 The test machine for this example is a 3-drive ZFS mirror and the system has currently assigned device nodes *ada0*-*ada2* to the drives.
-Use the **diskinfo** or **geom** command to find the serial numbers for each device node and match them up with the serial numbers collected earlier.
+Use the `diskinfo` or `geom` command to find the serial numbers for each device node and match them up with the serial numbers collected earlier.
 
 {{< highlight txt >}}
 $ su
@@ -65,7 +65,7 @@ errors: No known data errors
 > In this example, the device node numbers happened to match the drive bay numbers, but this ordering is not guaranteed.
 Hardware faults or swapped cables may cause the device nodes to be numbered in a different order, so it's important to pair up the device nodes with the HDD serial numbers rather than the drive bay numbers.
 
-Use **gpart modify** to change the GPT label on the third partition of each drive to include the drive bay id and serial number.
+Use `gpart modify` to change the GPT label on the third partition of each drive to include the drive bay id and serial number.
 
 {{< highlight txt >}}
 # gpart show -l
@@ -122,8 +122,8 @@ ada2p3 modified
 
 That's it for the labels.
 
-To simulate a minor problem, take drive 1 offline with **zpool offline**.
-Note that **zpool status** now says that the *OFFLINE* drive **was ada1**.
+To simulate a minor problem, take drive 1 offline with `zpool offline`.
+Note that `zpool status` now says that the *OFFLINE* drive **was ada1**.
 Also note that the device node **ada1** has not been reassigned to any of the other *ONLINE* drives.
 
 {{< highlight txt >}}
@@ -151,7 +151,7 @@ errors: No known data errors
 {{< /highlight >}}
 
 For cases like this, where the problem drive can still be detected by the system and the device node has not been reassigned,
-run **gpart show** on the *OFFLINE* device node to display the faulty drive's bay id and serial number from the GPT label.
+run `gpart show` on the *OFFLINE* device node to display the faulty drive's bay id and serial number from the GPT label.
 
 {{< highlight txt >}}
 # gpart show -l ada1 | grep zfs
@@ -160,7 +160,7 @@ run **gpart show** on the *OFFLINE* device node to display the faulty drive's ba
 
 To simulate a more serious problem, power down the server, disconnect drive 1 completely and restart the server.
 
-Run **zpool status** again and note that ZFS still indicates that the *OFFLINE* drive **was ada1**, but also note that device node **ada1** has been reassigned to another drive.
+Run `zpool status` again and note that ZFS still indicates that the *OFFLINE* drive **was ada1**, but also note that device node **ada1** has been reassigned to another drive.
 
 {{< highlight txt >}}
 $ su
@@ -188,7 +188,7 @@ errors: No known data errors
 {{< /highlight >}}
 
 For cases like this, where the system cannot detect the problem drive at all and reassigns the device node to another drive,
-use **gpart show** to list all of the partitions and look for the one that's missing from the list to find the faulty drive.
+use `gpart show` to list all of the partitions and look for the one that's missing from the list to find the faulty drive.
 
 {{< highlight txt >}}
 # gpart show -l | grep zfs
@@ -245,7 +245,7 @@ config:
 errors: No known data errors
 {{< /highlight >}}
 
-After the resilver finishes, run **zpool scrub** and then clear the detected errors with **zpool clear**.
+After the resilver finishes, run `zpool scrub` and then clear the detected errors with `zpool clear`.
 
 {{< highlight txt >}}
 # zpool scrub zroot

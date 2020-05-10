@@ -12,7 +12,7 @@ The excellent command-line video downloader [youtube-dl](https://rg3.github.io/y
 
 1. Download and install the [Microsoft Visual C++ 2010 Redistributable Package (x86)](https://www.microsoft.com/en-US/download/details.aspx?id=5555).
 
-1. Open the Start menu, type **cmd** to filter and select **cmd** to open a console window. Create a new folder **C:\Programs\capture** and download **youtube-dl**.
+1. Open the Start menu, type `cmd` to filter and select `cmd` to open a console window. Create a new folder **C:\Programs\capture** and download **youtube-dl**.
 
 	{{< highlight bat >}}
 C:\Windows\System32> mkdir C:\Programs\capture
@@ -28,12 +28,12 @@ Drill down the folder tree to find the **bin** directory, then copy **ffmpeg.exe
 
 #### Capture MP4 Video
 
-1. Use **Notepad** to create a new batch file that will capture video.
+1. Use `Notepad` to create a new batch file that will capture video.
 {{< highlight bat >}}
 C:\Programs\capture> notepad capture-video.bat
 {{< /highlight >}}
 
-1. Copy and paste the following code into the new file, then save and close **Notepad**.
+1. Copy and paste the following code into the new file, then save and close `Notepad`.
 {{< highlight bat >}}
 @echo off
 setlocal
@@ -55,7 +55,7 @@ endlocal
 exit /B %ERRORLEVEL%
 {{< /highlight >}}
 
-1. Run the **capture-video** script from the command line, providing a **"&lt;name&gt;"** and **"&lt;URL&gt;"** to capture, each surrounded by double-quotes.
+1. Run the `capture-video` script from the command line, providing a **"&lt;name&gt;"** and **"&lt;URL&gt;"** to capture, each surrounded by double-quotes.
 {{< highlight bat >}}
 C:\Programs\capture> capture-video.bat "Official Rick Astley" "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
 youtube-dl is up-to-date (2018.06.02)
@@ -72,12 +72,12 @@ youtube-dl is up-to-date (2018.06.02)
 
 #### Capture MP3 Audio
 
-1. Use **Notepad** to create a new batch file that will capture audio.
+1. Use `Notepad` to create a new batch file that will capture audio.
 {{< highlight bat >}}
 C:\Programs\capture> notepad capture-audio.bat
 {{< /highlight >}}
 
-1. Copy and paste this code into the new file, then save and close **Notepad**.
+1. Copy and paste this code into the new file, then save and close `Notepad`.
 {{< highlight bat >}}
 @echo off
 setlocal
@@ -99,7 +99,7 @@ endlocal
 exit /B %ERRORLEVEL%
 {{< /highlight >}}
 
-1. Run the **capture-audio** script from the command line, providing a **"&lt;name&gt;"** and **"&lt;URL&gt;"** to capture, each surrounded by double-quotes.
+1. Run the `capture-audio` script from the command line, providing a **"&lt;name&gt;"** and **"&lt;URL&gt;"** to capture, each surrounded by double-quotes.
 {{< highlight bat >}}
 C:\Programs\capture> capture-audio.bat "Official Rick Astley" "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
 youtube-dl is up-to-date (2018.06.02)

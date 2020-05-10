@@ -8,10 +8,10 @@ This is the easiest way I know of to install [Cygwin](https://www.cygwin.com) an
 
 <!--more-->
 
-1. Open the Start menu, type **cmd** to filter, and select **cmd** to open a console window.
+1. Open the Start menu, type `cmd` to filter, and select `cmd` to open a console window.
 {{< figure src="open-cmd-prompt.png" alt="Open the Windows command prompt">}}
 
-1. Use the console to create a root folder for Cygwin, such as **C:\cygwin**, then download and install Cygwin and **wget**.
+1. Use the console to create a root folder for Cygwin, such as `C:\cygwin`, then download and install Cygwin and `wget`.
 {{< highlight bat >}}
 C:\Windows\System32> mkdir c:\cygwin
 C:\Windows\System32> explorer https://www.cygwin.com/setup-x86_64.exe
@@ -19,12 +19,12 @@ C:\Windows\System32> mv %USERPROFILE%\Downloads\setup-x86_64.exe c:\cygwin
 C:\Windows\System32> c:\cygwin\setup-x86_64.exe -q -R c:\cygwin -s http://cygwin.mirror.constant.com -l c:\cygwin\packages -P wget
 {{< /highlight >}}
 
-1. After the installation finishes, a new shortcut called **Cygwin64 Terminal** will appear on the desktop.
+1. After the installation finishes, a new shortcut called `Cygwin64 Terminal` will appear on the desktop.
 {{< figure src="cygwin64-shortcut.png" alt="Cygwin64 Terminal desktop shortcut">}}
 
-1. Right-click the **Cygwin64 Terminal** shortcut and select **Run as administrator** to run Cygwin as root.
+1. Right-click the `Cygwin64 Terminal` shortcut and select `Run as administrator` to run Cygwin as root.
 
-1. In the Cygwin root console, use **wget** to download and install the **apt-cyg** package manager.
+1. In the Cygwin root console, use `wget` to download and install the `apt-cyg` package manager.
 {{< highlight txt >}}
 $ wget rawgit.com/transcode-open/apt-cyg/master/apt-cyg
 $ install apt-cyg /bin
@@ -32,7 +32,7 @@ $ rm apt-cyg
 {{< /highlight >}}
 
 1. Follow the instructions for [apt-cyg](https://github.com/transcode-open/apt-cyg) to install additional software as needed.
-For example, to install **SSH**, run the **Cygwin64 Terminal** as **Administrator** and enter the command **apt-cyg install openssh**.
+For example, to install `SSH`, run the `Cygwin64 Terminal` as `Administrator` and enter the command `apt-cyg install openssh`.
 {{< highlight txt >}}
 $ apt-cyg install openssh
 Installing openssh
@@ -65,7 +65,7 @@ usage: ssh [-46AaCfGgKkMNnqsTtVvXxYy] [-b bind_address] [-c cipher_spec]
            [user@]hostname [command]
 {{< /highlight >}}
 
-1. To periodically update an existing Cygwin installation, open the Start menu, type **cmd** to filter, select **cmd** to open a console, and run the setup program again.
+1. To periodically update an existing Cygwin installation, open the Start menu, type `cmd` to filter, select `cmd` to open a console, and run the setup program again.
 {{< highlight bat >}}
 C:\Windows\System32> C:\cygwin\setup-x86_64.exe --no-desktop --no-shortcuts --no-startmenu --quiet-mode
 {{< /highlight >}}

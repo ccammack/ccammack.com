@@ -4,19 +4,18 @@ date: 2020-03-30T21:01:50-07:00
 tags: ["FreeBSD", "ZFS", "Backups"]
 ---
 
-The [**zxfer**](https://www.freebsd.org/cgi/man.cgi?query=zxfer) shell script wraps the **zfs send** and **receive** commands and provides one of the easiest ways to back up a ZFS-based system to a remote server,
-but the command also works just as well to back up data to a local hard drive.
-Run **zpool scrub** after making the backup to detect bit rot, rotate through several drives to maintain multiple copies of the data
+The [`zxfer`](https://www.freebsd.org/cgi/man.cgi?query=zxfer) shell script wraps the `zfs send` and `zfs receive` commands and provides one of the easiest ways to back up a ZFS-based system to a remote server.
+It also works just as well to back up data to a local hard drive. Run `zpool scrub` on the backup drives to detect bit rot, rotate through several drives to maintain multiple copies of the data
 and store them off-site to create a reliable and inexpensive backup solution.
 
 <!--more-->
 
-This example assumes that the system generates snapshots using [zfs-auto-snapshot](/posts/schedule-zfs-snapshots-using-zfs-auto-snapshot/) and it will not work properly without them.
+This example assumes that the system generates snapshots using [`zfs-auto-snapshot`](/posts/schedule-zfs-snapshots-using-zfs-auto-snapshot/) and it will not work properly without them.
 It also assumes that the backup partition will be GELI-encrypted, which is wise for backups stored at an off-site location.
 Finally, it assumes that the backup target will be a ZFS pool.
-If ZFS cannot be used on the target device for some compelling reason, it would be better to select another backup solution or possibly even [rsync](https://www.freebsd.org/cgi/man.cgi?query=rsync).
+If ZFS cannot be used on the target device for some compelling reason, it would be better to select another backup solution or possibly even [`rsync`](https://www.freebsd.org/cgi/man.cgi?query=rsync).
 
-To get started, confirm that the system contains some snapshots using **zfs list -t**, then find and install **zxfer**.
+To get started, confirm that the system contains some snapshots using `zfs list -t`, then find and install `zxfer`.
 
 {{< highlight txt >}}
 $ su
@@ -39,7 +38,7 @@ zxfer-1.1.7                    Easily and reliably transfer ZFS filesystems
 [...]
 {{< /highlight >}}
 
-Insert the removable backup drive, run **dmseg** to find its device node name (**ada3**) and use **gpart destroy** to remove any old partition table that might be on the drive.
+Insert the removable backup drive, run `dmseg` to find its device node name (**ada3**) and use `gpart destroy` to remove any old partition table that might be on the drive.
 
 {{< highlight txt >}}
 # dmesg
@@ -74,7 +73,7 @@ ada3p1 added
   976773120          8        - free -  (4.0K)
 {{< /highlight >}}
 
-Run GELI **init** and **attach** to encrypt and mount the partition.
+Run `geli init` and `geli attach` to encrypt and mount the partition.
 
 {{< highlight txt >}}
 # grep "geli init" /var/log/bsdinstall_log
@@ -98,8 +97,8 @@ It's possible to use the **backup** pool as the destination for zxfer directly, 
 This will help identify backup data and allow multiple hosts to back up to the same drive.
 Since the source machine's hostname is **server** in this example, the backup destination for zxfer will be **backup/server**.
 
->Note that the [manpage](https://www.freebsd.org/cgi/man.cgi?query=zxfer) warns that **the usage of spaces in zfs(8) filesystem names is NOT supported**,
-so do not create datasets with spaces in their names when using **zfs create**.
+>Note that the [man page](https://www.freebsd.org/cgi/man.cgi?query=zxfer) warns that **the usage of spaces in zfs(8) filesystem names is NOT supported**,
+so do not create datasets with spaces in their names when using `zfs create`.
 
 {{< highlight txt >}}
 # zpool create backup gpt/backup.eli
@@ -119,7 +118,7 @@ zroot                879M   898G    88K  /zroot
 [...]
 {{< /highlight >}}
 
-Finally, run **zpool export** and **geli detach**, then **exit** the root user and pretend that you have removed the drive from the system to practice the complete backup procedure.
+Finally, run `zpool export` and `geli detach`, then `exit` the root user and pretend that you have removed the drive from the system to practice the complete backup procedure.
 
 {{< highlight txt >}}
 # zpool export backup
@@ -140,7 +139,7 @@ $
 
 ---
 
-To begin the backup procedure, **insert the drive** into the system and run **geli attach** and **zpool import** to mount the pool.
+To begin the backup procedure, insert the drive into the system and run `geli attach` and `zpool import` to mount the pool.
 
 {{< highlight txt >}}
 $ su
@@ -168,19 +167,19 @@ zroot                879M   898G    88K  /zroot
 [...]
 {{< /highlight >}}
 
-The [zxfer manpage](https://www.freebsd.org/cgi/man.cgi?query=zxfer) provides several usage examples in the bottom half of the text,
+The [zxfer man page](https://www.freebsd.org/cgi/man.cgi?query=zxfer) provides several usage examples in the bottom half of the text,
 and the first example (**Ex1 - Backup	a pool (including snapshots and	properties)**) offers a good model for the use case described here,
 which is to replicate the entire *zroot* pool from the host system to the backup drive.
 
->This example relies on **zfs-auto-snapshot** to create snapshots for any dataset that has the ZFS property **com.sun:auto-snapshot** set to **true**.
-Because of this, when running **zxfer** to copy snapshots to a *locally-mounted* backup pool, it is critical to specify the option **-I com.sun:auto-snapshot** to prevent that property from being copied to the backup data.
+>This example relies on `zfs-auto-snapshot` to create snapshots for any dataset that has the ZFS property **com.sun:auto-snapshot** set to **true**.
+Because of this, when running `zxfer` to copy snapshots to a *locally-mounted* backup pool, it is critical to specify the option **-I com.sun:auto-snapshot** to prevent that property from being copied to the backup data.
 If this option is not specified, zxfer will copy the property to the data in the backup pool and the system will begin taking snapshots of the backup data, which can prevent files from replicating properly.
 This option may not be necessary for replication to a remote server or if the backup is only applied to specific datasets rather than the entire zroot.
 
-To run the backup, use **zfs list | awk** to confirm that none of the dataset names contain spaces,
-then run the **zxfer** command to perform the actual backup operation followed by **zpool scrub** to make sure the backup pool is free of data errors.
+To run the backup, use `zfs list | awk` to confirm that none of the dataset names contain spaces,
+then run the `zxfer` command to perform the actual backup operation followed by `zpool scrub` to make sure the backup pool is free of data errors.
 
-Use **zpool list** to compare the *ALLOC* sizes of the source and destination pools to see that they are approximately the same size after the backup.
+Use `zpool list` to compare the *ALLOC* sizes of the source and destination pools to see that they are approximately the same size after the backup.
 
 {{< highlight txt >}}
 # zfs list -H | cut -f1 | awk '/[[:space:]]/{printf("Error! Dataset name contains spaces: %s\n",$0)}'
@@ -228,7 +227,8 @@ Writing backup info to location /backup/server/.zxfer_backup_info.zroot
 
 ---
 
-Before testing the restore process, use **zpool list** to make sure *zroot* has enough space to hold the entire *backup*, then add a new temporary file under **/usr/home** to create a known difference between the backup and host data.
+Before testing the restore process, use `zpool list` to make sure *zroot* has enough space to hold the entire *backup*,
+then add a new temporary file under **/usr/home** to create a known difference between the backup and host data.
 
 {{< highlight txt >}}
 # zpool list
@@ -263,14 +263,14 @@ zroot/tmp  com.sun:auto-snapshot  false                  local
 
 ---
 
-After the files are restored, use **diff -qr** to compare the contents of **/usr/home** and **/tmp/zroot/usr/home** to demonstrate their differences.
+After the files are restored, use `diff -qr` to compare the contents of **/usr/home** and **/tmp/zroot/usr/home** to demonstrate their differences.
 In this example, the temporary file named *hello* will only appear on the host and will be missing from the restored backup data.
 
 Destroy the restored **/tmp** dataset, then wait for the next execution of the [snapshot cronjob](/posts/schedule-zfs-snapshots-using-zfs-auto-snapshot/), which is 15 minutes (900 seconds) in this example.
 
-Run the **zxfer** *back up* command again to back up the new snapshots (including the new *hello* file), followed by the **zxfer** *restore* command to restore them to the **/tmp** folder again.
+Run the `zxfer` *back up* command again to back up the new snapshots (including the new *hello* file), followed by the `zxfer` *restore* command to restore them to the **/tmp** folder again.
 
-Use **diff -qr** again to compare the contents of **/usr/home** and **/tmp/zroot/usr/home** to demonstrate that there are no differences and that the new *hello* file has been properly backed up.
+Use `diff -qr` again to compare the contents of **/usr/home** and **/tmp/zroot/usr/home** to demonstrate that there are no differences and that the new *hello* file has been properly backed up.
 
 {{< highlight txt >}}
 # diff -qr /usr/home/ /tmp/zroot/usr/home/
@@ -289,7 +289,7 @@ Only in /usr/home/ccammack: hello
 # diff -qr /usr/home/ /tmp/zroot/usr/home/
 {{< /highlight >}}
 
-The entire host file system can also be compared to the backup using **diff -qr**.
+The entire host file system can also be compared to the backup using `diff -qr`.
 In this example, doing this confirms that several directories are correctly excluded from the snapshot set and that one of the log files has changed since the last backup.
 
 {{< highlight txt >}}
@@ -330,7 +330,7 @@ To clean up, destroy the temporary dataset and remove the test file.
 
 ---
 
-Finally, to remove the drive for off-site storage, run **zpool export** followed by **geli detach** and then **remove the drive** from the system.
+Finally, to remove the drive for off-site storage, run `zpool export` followed by `geli detach` and then remove the drive from the system.
 
 {{< highlight txt >}}
 # zpool export backup
