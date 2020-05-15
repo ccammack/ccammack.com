@@ -14,7 +14,7 @@ First, use `iocage` to create a jail called *git*.
 $ su
 Password:
 
-# iocage create -n "git" -r latest vnet="on" allow_raw_sockets="1" boot="on" bpf="yes" dhcp="on"
+# iocage create -n "git" -r latest --thickjail vnet="on" allow_raw_sockets="1" boot="on" bpf="yes" dhcp="on"
 git successfully created!
 git: vnet requires defaultrouter, using 192.168.0.1
 * Starting git
@@ -88,6 +88,9 @@ Replace the **HTTP_ADDR** with the IP address of the jail and disable user regis
 root@git:~ # sed -i .tmp 's/^HTTP_ADDR.*=.*$/HTTP_ADDR = 192.168.0.112/g' /usr/local/etc/gitea/conf/app.ini
 root@git:~ # sed -i .tmp 's/^DISABLE_REGISTRATION.*=.*$/DISABLE_REGISTRATION = true/g' /usr/local/etc/gitea/conf/app.ini
 {{< /highlight >}}
+
+[comment]: # ( root@git:~ # sed -i .tmp 's/^DOMAIN.*=.*$/DOMAIN = git.ccammack.com/g' /usr/local/etc/gitea/conf/app.ini							)
+[comment]: # ( root@git:~ # sed -i .tmp 's/^ROOT_URL.*=.*$/ROOT_URL = http\:\/\/git.ccammack.com\:3000\//g' /usr/local/etc/gitea/conf/app.ini	)
 
 Use `gitea generate secret` to replace the three secret configuration values.
 
