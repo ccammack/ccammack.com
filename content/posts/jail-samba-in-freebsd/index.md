@@ -17,7 +17,7 @@ In this example, I create a new jail named **media** that relies on DHCP to rese
 $ su
 Password:
 
-# iocage create -n "media" -r latest vnet="on" allow_raw_sockets="1" boot="on" bpf="yes" dhcp="on"
+# iocage create -n "media" -r latest --thickjail vnet="on" allow_raw_sockets="1" boot="on" bpf="yes" dhcp="on"
 media successfully created!
 media: vnet requires defaultrouter, using 192.168.0.1
 * Starting media
