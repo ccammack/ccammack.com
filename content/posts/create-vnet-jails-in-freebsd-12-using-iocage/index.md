@@ -143,7 +143,7 @@ To create a jail that uses DHCP to request an IP address from the router, call `
 In this example, the router assigned IP address 192.168.0.**116** to jail **j0** on startup.
 
 {{< highlight txt >}}
-# iocage create -n "j0" -r latest vnet="on" allow_raw_sockets="1" boot="on" bpf="yes" dhcp="on"
+# iocage create -n "j0" -r latest --thickjail vnet="on" allow_raw_sockets="1" boot="on" bpf="yes" dhcp="on"
 j0 successfully created!
 * Starting j0
   + Started OK
@@ -158,7 +158,7 @@ Alternatively, to create a jail with a static IP address, call `iocage create` a
 In this example, I have manually assigned IP address 192.168.0.**254** to jail **j1**.
 
 {{< highlight txt >}}
-# iocage create -n "j1" -r latest vnet="on" allow_raw_sockets="1" boot="on" defaultrouter="192.168.0.1" ip4_addr="192.168.0.254/24"
+# iocage create -n "j1" -r latest --thickjail vnet="on" allow_raw_sockets="1" boot="on" defaultrouter="192.168.0.1" ip4_addr="192.168.0.254/24"
 j1 successfully created!
 * Starting j1
   + Started OK
