@@ -2,7 +2,6 @@
 title: "Create a Centralized Backup Server With FreeBSD"
 date: 2020-04-26T13:24:37-07:00
 tags: ["FreeBSD", "ZFS", "Backups", "Samba", "SFTP", "restic", "Duplicity", "zxfer"]
-draft: true
 ---
 
 To back up data on the cheap, using removable drives that you swap and carry off-site,
