@@ -1,7 +1,7 @@
 ---
 title: "Back Up ZFS to a Removable Drive Using zxfer"
 date: 2020-03-30T21:01:50-07:00
-tags: ["FreeBSD", "ZFS", "Backups"]
+tags: ["FreeBSD", "ZFS", "Backups", "zxfer"]
 ---
 
 The [`zxfer`](https://www.freebsd.org/cgi/man.cgi?query=zxfer) shell script wraps the `zfs send` and `zfs receive` commands and provides one of the easiest ways to back up a ZFS-based system to a remote server.
