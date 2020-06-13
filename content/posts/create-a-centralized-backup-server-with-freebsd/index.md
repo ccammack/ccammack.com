@@ -267,10 +267,13 @@ blink_play_pattern() {
 My backup procedure calls for swapping the drives every morning. When a fresh drive is inserted, the system will automatically mount it and begin making backups.
 Backups will repeat periodically until early the next morning and then the system will automatically unmount the drive so it can be swapped for the next one.
 
-To do this, the backup script relies on three functions: the *initialize* and *terminate* functions will mount and unmount the backup drive, preparing for backup and cleaning up afterwards;
+To do this, the script relies on three functions: the *initialize* and *terminate* functions will mount and unmount the backup drive, preparing for backup and cleaning up afterwards;
 the *backup* function performs the backup commands, sleeping for a while between each iteration.
-All three functions redirect their command outputs to the system logger and emit one or more colors to *stdout* so the script can display the results of each step on the blink(1).
 If any command inside the *initialize* function fails, the *backup* function will be skipped, but the *terminate* function will still run for cleanup.
+
+All three functions redirect their command outputs to the system logger and emit one or more colors to *stdout* so the script can display the results of each step on the blink(1).
+This example script flashes *blue* during the *backup* step and then a repeating sequence of three *green* or *red* lights at the end to
+indicate the results of the *initialize*, *backup* and *terminate* functions, respectively.
 
 The second half of the backup script implements these three functions plus a couple of helper functions.
 
@@ -559,8 +562,8 @@ The example below shows what a test run would look like on Windows using client-
 
 1. Insert the backup drive into the server and wait for the LED to start flashing *blue*
 1. Create a new temporary folder and file on the Windows machine
-1. Create a new backup repository using restic
-1. Back up the temporary folder using restic
+1. Create a new backup repository on the server using restic
+1. Back up the temporary folder to the repository using restic
 1. Restore the temporary folder to a new location on the Windows machine using restic
 1. Generate file hashes for the original and restored files to make sure they match
 
@@ -773,7 +776,7 @@ zxfer-1.1.7                    Easily and reliably transfer ZFS filesystems
 
 Finally, call `zxfer` from inside the script's `backup` function.
 The script will count the number of attempts that complete without error using the `self_` variables and
-will report that the overall process succeeded if at least one attempt worked during the daily cycle.
+will flash *green* to report that the overall process succeeded if at least one attempt worked during the daily cycle.
 
 {{< highlight txt >}}
 backup() {
@@ -806,7 +809,8 @@ backup() {
 
 ##### Cancel Backup If the Drive Is Too Full
 
-Use `zpool list` to check the used space on the backup drive and cancel before starting if it's over 80%.
+Use `zpool list` to check the used space on the backup drive and cancel the backup step if it's over 80%.
+If the drive runs low on space, the blink(1) will flash *orange* for the backup step in the final results.
 
 {{< highlight txt >}}
 backup() {
@@ -826,7 +830,10 @@ backup() {
 
 ##### Scrub for ZFS Errors
 
-To scrub the backup drive for ZFS errors, add two new helpers and call them from `backup`.
+To scrub the backup drive for ZFS errors, add two new helpers and call them from the `backup` function.
+In this example, the drive inserted on Saturday will be scrubbed, so cycling through a small number of drives (other than 7) will cause each one to scrub once every few weeks.
+The blink(1) will flash *white* while the system waits for the scrub to finish.
+This code inserts a third light into the final blink(1) output sequence which will flash *green* for success or *orange* if the scrub fails.
 
 {{< highlight txt >}}
 scrub_start() {
