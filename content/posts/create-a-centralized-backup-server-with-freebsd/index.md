@@ -692,11 +692,11 @@ Select the option to encrypt the backup files with a password if desired and the
 Some backup software might require the use of *SSH keys* rather than passwords, and it's generally better to use them rather than passwords if possible.
 There are many options for SSH key management, but they all follow the same basic procedure:
 
-1. Generate *SSH keys* on the client machine. This can be done in the terminal using `ssh-keygen` or in a graphical keyring manager like the *Password and Encryption Keys* tool in Ubuntu 20.04.
-1. Copy the newly generated *public* SSH key from the client machine to the backup server and append it to the end of the user's *authorized_keys* file,
+1. Generate *SSH keys* on the client machine. This can be done in the terminal using `ssh-keygen` or in a GUI keyring manager like the *Passwords and Keys* (Seahorse) application in Ubuntu 20.04.
+1. Copy the *public* SSH key from the client machine to the server using any method you like and append it to the end of the user's *authorized_keys* file,
 located under the user's home directory at `~/.ssh/authorized_keys`.
-1. On the client machine, before connecting to the backup server, decrypt the *private* key into RAM by running `ssh-agent` and `ssh-add` in the terminal
-or by relying on a graphical keyring manager to handle the whole procedure automatically.
+1. On the client machine, before connecting to the server, decrypt the *private* SSH key into RAM by running `ssh-agent` and `ssh-add` in the terminal
+or by relying on a keyring manager ([console](https://www.funtoo.org/Keychain) or [GUI](https://wiki.gnome.org/Apps/Seahorse/)) to handle the whole procedure automatically.
 1. The client can now securely connect to the backup server as needed without manually entering a user name and password each time.
 
 See [SSH Mastery](https://www.amazon.com/SSH-Mastery-OpenSSH-PuTTY-Tunnels-ebook/dp/B079NL1L9K) for more information.
