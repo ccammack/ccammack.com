@@ -1,7 +1,7 @@
 ---
 title: "Create a Centralized Backup Server With FreeBSD"
 date: 2020-04-26T13:24:37-07:00
-tags: ["FreeBSD", "ZFS", "Backups", "Samba", "SFTP", "restic", "Duplicity", "zxfer"]
+tags: ["FreeBSD", "ZFS", "Backups", "Samba", "SFTP", "restic", "Déjà Dup", "Duplicity", "zxfer"]
 ---
 
 To back up data on the cheap, using removable drives that you swap and carry off-site,
@@ -668,11 +668,11 @@ Welcome to FreeBSD!
 [...]
 {{< /highlight >}}
 
-#### Test an Ubuntu Backup Over SFTP Using Duplicity
+#### Test an Ubuntu Backup Over SFTP Using Déjà Dup
 
 Some client backup software supports SFTP logins using user names and passwords.
 
-For example, to test the default backup program in Ubuntu 20.04, open the application called **Backups**,
+For example, to test the default backup program in Ubuntu 20.04, open the application called **Backups** (Déjà Dup),
 then select **Storage location** to specify the server and destination folder for the backup files.
 
 In this example, the **Network Location** of the backup server is *ssh://192.168.1.112* and the destination **Folder** is the absolute path */backup/laptop/duplicity*.
