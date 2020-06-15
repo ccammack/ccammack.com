@@ -563,8 +563,8 @@ The example below shows what a test run would look like on Windows using client-
 1. Insert the backup drive into the server and wait for the LED to start flashing *blue*
 1. Create a new temporary folder and file on the Windows machine
 1. Create a new backup repository on the server using restic
-1. Back up the temporary folder to the repository using restic
-1. Restore the temporary folder to a new location on the Windows machine using restic
+1. Back up the temporary folder to the repository
+1. Restore the temporary folder to a new location on the Windows machine
 1. Generate file hashes for the original and restored files to make sure they match
 
 {{< highlight txt >}}
@@ -832,8 +832,9 @@ backup() {
 
 To scrub the backup drive for ZFS errors, add two new helpers and call them from the `backup` function.
 In this example, the drive inserted on Saturday will be scrubbed, so cycling through a small number of drives (other than 7) will cause each one to scrub once every few weeks.
-The blink(1) will flash *white* while the system waits for the scrub to finish.
-This code inserts a third light into the final blink(1) output sequence which will flash *green* for success or *orange* if the scrub fails.
+
+The `zfs scrub` will flash *white* on the blink(1) while running and either *green* for success or *orange* for failure in the
+final results in between the existing flashes for the *backup* and *terminate* steps.
 
 {{< highlight txt >}}
 scrub_start() {
@@ -885,5 +886,15 @@ backup() {
   return 0
 }
 {{< /highlight >}}
+
+##### blink(1) Output Summary
+
+During the run, the blink(1) will flash *blue* while running and *white* while scrubbing.
+The final results will generally contain four flashes, one each for *initialize*, *backup*, *scrub* and *terminate*,
+where *green* indicates success and *red* indicates failure.
+Fewer than four lights will appear on runs that abort early due to errors.
+*Orange* flashes indicate a disk-related failure:
+low disk space will abort the *backup* step and flash *orange* in its place;
+a failed ZFS scrub will flash *orange* for the *scrub* step and *green* otherwise.
 
 
