@@ -2,6 +2,7 @@
 title: "Create a Centralized Backup Server With FreeBSD"
 date: 2020-04-26T13:24:37-07:00
 tags: ["FreeBSD", "ZFS", "Backups", "Samba", "SFTP", "restic", "Déjà Dup", "Duplicity", "zxfer"]
+draft: true
 ---
 
 To back up data on the cheap, using removable drives that you swap and carry off-site,
@@ -737,7 +738,7 @@ After making this change, also change the destination **Folder** in the backup s
 
 {{< figure src="duplicity-set-relative-storage-location.png" alt="Duplicity: Set relative storage location">}}
 
--------
+---
 
 ##### Configure the Backup Server to Back Itself Up
 
@@ -805,7 +806,7 @@ backup() {
 }
 {{< /highlight >}}
 
--------
+---
 
 ##### Cancel Backup If the Drive Is Too Full
 
@@ -826,7 +827,7 @@ backup() {
 }
 {{< /highlight >}}
 
--------
+---
 
 ##### Scrub for ZFS Errors
 
@@ -887,10 +888,12 @@ backup() {
 }
 {{< /highlight >}}
 
+---
+
 ##### blink(1) Output Summary
 
 During the run, the blink(1) will flash *blue* while running and *white* while scrubbing.
-The final results will generally contain four flashes, one each for *initialize*, *backup*, *scrub* and *terminate*,
+The final results will generally display four flashes, one each for *initialize*, *backup*, *scrub* and *terminate*,
 where *green* indicates success and *red* indicates failure.
 Fewer than four lights will appear on runs that abort early due to errors.
 *Orange* flashes indicate a disk-related failure:
