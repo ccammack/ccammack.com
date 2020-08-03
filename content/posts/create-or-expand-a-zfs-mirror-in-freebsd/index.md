@@ -8,7 +8,7 @@ Here's a quick guide to convert a system created by the FreeBSD installer from a
 
 <!--more-->
 
-The test system was partitioned by selecting **Auto (ZFS)** in the installer and configuring these options:
+The single-drive system was originally partitioned using **Auto (ZFS)** in the installer and configuring these options:
 
 | Configure Options:|					|
 | --- 				| ---				|
@@ -20,7 +20,7 @@ The test system was partitioned by selecting **Auto (ZFS)** in the installer and
 
 {{< figure src="freebsd-installer-zfs-configuration.png" alt="FreeBSD Installer > ZFS Configuration">}}
 
-First, back up your data.
+To add a new mirror drive to the system, first back up the data.
 
 Second, use `zpool status` to examine the current ZFS pool. In this example, the **zroot** pool consists of the third partition (**p3**) of drive **ada0** and it has been encrypted with GELI (**.eli**).
 
@@ -156,7 +156,7 @@ DEBUG: zfs_create_boot: geli attach -j - "ada0p3"
 [...]
 {{< /highlight >}}
 
-Run the `geli init` command for the new drive using slightly different options. Remove the `-J -` option to make the command interactive and change **"ada0p3"** to **"ada1p3"** to match the new drive.
+Run the `geli init` command for the new drive using slightly different options. Remove the `-J -` option to make the command interactive and change **ada0p3** to **ada1p3** to match the new drive.
 
 When requested, enter the same GELI password currently used to boot the system.
 
