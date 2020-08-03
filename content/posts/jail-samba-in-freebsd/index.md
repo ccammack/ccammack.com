@@ -94,36 +94,12 @@ Samba configuration is notoriously confusing. For this example, I want to achiev
 Create a user account for Samba access and assign it a password.
 
 {{< highlight txt >}}
-# iocage exec media adduser
-Username: ccammack
-Full name:
-Uid (Leave empty for default):
-Login group [ccammack]:
-Login group is ccammack. Invite ccammack into other groups? []: wheel
-Login class [default]:
-Shell (sh csh tcsh nologin) [sh]:
-Home directory [/home/ccammack]:
-Home directory permissions (Leave empty for default):
-Use password-based authentication? [yes]:
-Use an empty password? (yes/no) [no]:
-Use a random password? (yes/no) [no]:
-Enter password:
-Enter password again:
-Lock out the account after creation? [no]:
-Username   : ccammack
-Password   : *****
-Full Name  :
-Uid        : 1001
-Class      :
-Groups     : ccammack wheel
-Home       : /home/ccammack
-Home Mode  :
-Shell      : /bin/sh
-Locked     : no
-OK? (yes/no): yes
-adduser: INFO: Successfully added (ccammack) to the user database.
-Add another user? (yes/no): no
-Goodbye!
+# pw useradd -n ccammack -m -s /bin/sh -G wheel
+
+# passwd ccammack
+Changing local password for ccammack
+New Password:
+Retype New Password:
 {{< /highlight >}}
 
 Create the folder you intend to share, along with an extra folder and file for testing, then change their owner to the Samba user.
