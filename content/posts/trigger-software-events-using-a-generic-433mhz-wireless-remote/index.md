@@ -90,7 +90,7 @@ ID        : 0CA376E
 Pressure  : 260.0 kPa    Temperature: 28 C         Integrity : CRC
 {{< /highlight >}}
 
-To filter out extraneous messages, create a wrapper script around `rtl_433_64bit_static.exe` that looks for the button-specific `Command` messages and triggers the desired events.
+To filter out these extraneous messages, create a wrapper script around `rtl_433_64bit_static.exe` that looks for the button-specific `Command` messages and triggers the desired events.
 For my own use, I created a script called `remote.bat` and placed it in `C:\Users\ccammack\bin` along with `rtl_433_64bit_static.exe`.
 
 It might be possible to write this as a pure batch script using `FOR` and `FINDSTR`,
@@ -147,7 +147,7 @@ Terminate batch job (Y/N)? y
 
 ##### Ubuntu Installation
 
-Installation on Ubuntu is much simpler. Simply plug in the SDR dongle, install `rtl-433`, and run a quick test to make sure everything works.
+Installation on Ubuntu is much simpler. Simply plug in the SDR dongle, install `rtl-433` and run a quick test to make sure everything works.
 
 {{< highlight txt >}}
 ~$ sudo apt -y install rtl-433
@@ -217,4 +217,71 @@ Button B
 Button C
 Button D
 ^C
+{{< /highlight >}}
+
+##### Need More Buttons?
+
+If the key fob doesn't have enough buttons for your needs, check the list of **Supported device protocols** on the [rtl_433 page](https://github.com/merbanan/rtl_433#running)
+and the corresponding [test folder for each device](https://github.com/merbanan/rtl_433_tests/tree/master/tests) for some other possibilities.
+
+One good option is the **DirecTV RC66RX Remote Control**, which can be had for under $10 and works well with this setup.
+
+{{< figure src="directv-rc66rx-remote-control.jpg" alt="DirecTV RC66RX Remote Control">}}
+
+To [enable RF mode](https://github.com/merbanan/rtl_433_tests/tree/master/tests/directv#description) on the remote:
+
+1. Move the input select slider all the way to the left
+1. Press and hold `Mute` and `SELECT` until the LED flashes twice
+1. Enter `9` `6` `1` and the LED will flash twice
+1. Press `CHAN|PAGE Up` to enter RF mode and the LED will flash twice
+1. Enter any 6-digit code you want to identify the remote
+1. Press `SELECT` and the LED will flash twice
+
+If the LED does not flash twice in the last step, repeat the procedure without any delay between steps.
+
+Run `rtl_433` again and press some buttons to see the output.
+
+{{< highlight txt >}}
+C:\Users\ccammack\bin (master)
+λ rtl_433_64bit_static.exe
+[...]
+Tuned to 433.920MHz.
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+time      : 2020-08-16 00:54:49
+model     : DirecTV-RC66RX                         id        : 123456
+button_id : 0x30         button_name: [VCR PLAY]   event     : INITIAL
+mic       : CHECKSUM
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+time      : 2020-08-16 00:54:49
+model     : DirecTV-RC66RX                         id        : 123456
+button_id : 0x30         button_name: [VCR PLAY]   event     : REPEAT
+mic       : CHECKSUM
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+time      : 2020-08-16 00:55:03
+model     : DirecTV-RC66RX                         id        : 123456
+button_id : 0x31         button_name: [VCR STOP]   event     : INITIAL
+mic       : CHECKSUM
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+time      : 2020-08-16 00:55:03
+model     : DirecTV-RC66RX                         id        : 123456
+button_id : 0x31         button_name: [VCR STOP]   event     : REPEAT
+mic       : CHECKSUM
+Signal caught, exiting!
+{{< /highlight >}}
+
+The `VOL`, `Mute`, `TV INPUT` and `TV POWER` buttons do not generate unique RF signals because they were designed to control the IR functions on a TV.
+Instead, they all broadcast the same RF signal, which appears as `DTV: IR ALERT` in the output from `rtl_433`.
+
+The remaining ~40 buttons all generate unique RF signals and `rtl_433` can even distinguish between `INITIAL` and `REPEAT` button events.
+
+{{< highlight txt >}}
+time      : 2020-08-16 00:48:54
+model     : DirecTV-RC66RX                         id        : 123456
+button_id : 0x5B         button_name: [DTV: IR ALERT]	event     : INITIAL
+mic       : CHECKSUM
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+time      : 2020-08-16 00:48:54
+model     : DirecTV-RC66RX                         id        : 123456
+button_id : 0x5B         button_name: [DTV: IR ALERT]	event     : REPEAT
+mic       : CHECKSUM
 {{< /highlight >}}
