@@ -4,7 +4,7 @@ date: 2020-07-25T20:54:14-07:00
 tags: ["Windows", "Ubuntu", "HTPC", "IoT", "Home Automation", "Photography", "Videography"]
 ---
 
-Combine an inexpensive [software-defined radio](https://en.wikipedia.org/wiki/Software-defined_radio) dongle with
+Combine an inexpensive [software-defined radio](https://en.wikipedia.org/wiki/Software-defined_radio) with
 a generic key fob remote and some [open source software](https://github.com/merbanan/rtl_433) to trigger events on a computer.
 
 <!--more-->
@@ -13,6 +13,11 @@ a generic key fob remote and some [open source software](https://github.com/merb
 
 This post explains how to install the SDR drivers on Windows and Ubuntu and provides sample scripts that can be customized for use with
 IoT, media playback, photography or any other situation where a small remote is more convenient to use than a keyboard.
+
+Remotes suitable for this use are sold as *433MHz universal fixed code cloning learning remotes* and are intended for use with gates and garage doors.
+Avoid remotes designed to pair only with specific brands because they implement a *rolling code* security feature that broadcasts a different signal each time a button is pressed.
+
+---
 
 ##### Windows Installation
 
@@ -79,7 +84,7 @@ Command   : 3            Tri-State : ZZZZZZZZ0001
 _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
 {{< /highlight >}}
 
-In population-dense areas, the SDR dongle may also pick up messages from other devices operating on the same 433MHz frequency such as remote controls for ceiling fans and garage doors as well as devices like home weather stations and wireless door bells.
+In population-dense areas, the SDR dongle may also pick up messages from other devices operating on the same frequency such as remote controls for ceiling fans as well as devices like home weather stations and wireless door bells.
 
 For example, while testing, my SDR also received a message from one of the tire sensors on a passing Toyota indicating that it is over-inflated to nearly 38 PSI.
 
@@ -144,6 +149,8 @@ Button C
 Button D
 Terminate batch job (Y/N)? y
 {{< /highlight >}}
+
+---
 
 ##### Ubuntu Installation
 
@@ -219,6 +226,8 @@ Button D
 ^C
 {{< /highlight >}}
 
+---
+
 ##### Need More Buttons?
 
 If the key fob doesn't have enough buttons for your needs, check the list of **Supported device protocols** on the [rtl_433 page](https://github.com/merbanan/rtl_433#running)
@@ -269,10 +278,10 @@ mic       : CHECKSUM
 Signal caught, exiting!
 {{< /highlight >}}
 
-The `VOL`, `Mute`, `TV INPUT` and `TV POWER` buttons do not generate unique RF signals because they were designed to control the IR functions on a TV.
-Instead, they all broadcast the same RF signal, which appears as `DTV: IR ALERT` in the output from `rtl_433`.
+The `VOL`, `Mute`, `TV INPUT` and `TV POWER` buttons do not generate unique RF signals because they were intended to control the functions on a TV or stereo using IR.
+Instead, they all broadcast a single common RF signal, which appears as `DTV: IR ALERT` in the output stream.
 
-The remaining ~40 buttons all generate unique RF signals and `rtl_433` can even distinguish between `INITIAL` and `REPEAT` button events.
+The remaining ~40 buttons all generate unique RF signals. In addition, `rtl_433` will automatically distinguish the `INITIAL` and `REPEAT` button events in the output.
 
 {{< highlight txt >}}
 time      : 2020-08-16 00:48:54
