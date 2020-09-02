@@ -1,7 +1,7 @@
 ---
 title: "Trigger Software Events Using a Generic 433MHz Wireless Remote"
 date: 2020-07-25T20:54:14-07:00
-tags: ["Windows", "Ubuntu", "HTPC", "IoT", "Home Automation", "Photography", "Videography"]
+tags: ["Windows", "Ubuntu", "HTPC", "IoT", "Home Automation"]
 ---
 
 Combine an inexpensive [software-defined radio](https://en.wikipedia.org/wiki/Software-defined_radio) with
