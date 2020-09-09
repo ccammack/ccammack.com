@@ -84,8 +84,7 @@ Command   : 3            Tri-State : ZZZZZZZZ0001
 _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
 {{< /highlight >}}
 
-In population-dense areas, the SDR dongle may also pick up messages from other devices operating on the same frequency such as remote controls for ceiling fans as well as devices like home weather stations and wireless door bells.
-
+In population-dense areas, the SDR dongle may also pick up messages from other devices operating on the same frequency.
 For example, while testing, my SDR also received a message from one of the tire sensors on a passing Toyota indicating that it is over-inflated to nearly 38 PSI.
 
 {{< highlight txt >}}

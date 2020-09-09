@@ -194,6 +194,8 @@ Use `sysrc` to add `samba_server_enable=YES` to the jail's **rc.conf** and start
 
 {{< highlight txt >}}
 # iocage exec media sysrc samba_server_enable=YES
+samba_server_enable:  -> YES
+
 # iocage exec media service samba_server start
 Performing sanity check on Samba configuration: OK
 Starting nmbd.

@@ -1,37 +1,86 @@
 ---
 title: "Create a Centralized Backup Server With FreeBSD"
 date: 2020-04-26T13:24:37-07:00
-tags: ["FreeBSD", "ZFS", "Backups", "Samba", "SFTP", "restic", "Déjà Dup", "Duplicity", "zxfer"]
-draft: true
+tags: ["FreeBSD", "ZFS", "Backups", "Samba", "SFTP", "restic", "Déjà Dup", "Duplicity", "zxfer", "blink(1)"]
 ---
 
-To back up data on the cheap, using removable drives that you swap and carry off-site,
-install a 5.25" to 3.5" hot swap bay in an old machine and centralize the backup process for all of your hosts onto a single server running FreeBSD 12.1 on ZFS.
+To back up data inexpensively, using removable drives that you swap and carry off-site,
+install a 5.25" to 3.5" hot swap bay in an old machine and centralize the backup process for all of your hosts onto a dedicated backup server running FreeBSD with ZFS.
 
 <!--more-->
 
+##### Introduction
+
+This post explains how to set up a small FreeBSD backup server such that inserting a removable hard drive will automatically begin the daily backup process.
+After the backup finishes early the next morning, the system will automatically dismount the removable drive so it can quickly be swapped for another one.
+
+Nearly all client-side backup software supports backing up over Samba or SFTP, so this post covers how to configure both options.
+It also explains how to back up the backup server itself and how to back up other FreeBSD hosts on the same network using ZFS replication.
+
+Finally, it explains how to integrate a [blink(1)](/posts/display-server-notifications-using-a-blink1/) status light to give visual feedback during the backup process.
+
 The hardware I'm using for this is a [Mini-ITX Intel J1900](https://www.ebay.com/sch/i.html?_nkw=Mini-ITX+Intel+J1900)
 inside an [Inwin Development BM639 Mini ITX Slim Case](https://www.in-win.com/en/computer-chassis/bm-series/APAC),
-which has internal bays for the OS and one external 5.25" bay that can hold a hot swap drive tray.
-This same approach should work just as well with an external USB drive dock.
+which has internal bays for the OS and one external 5.25" DVD bay that can hold a hot swap drive tray.
+This same approach should work just as well with a suitable single-board computer and an external USB drive dock.
 
-The J1900 is slow and outdated and [requires setting a couple of kernel options](https://bugs.freebsd.org/bugzilla/show_bug.cgi?id=230172#c48)
+The J1900 is a bit outdated and [requires setting a couple of kernel options](https://bugs.freebsd.org/bugzilla/show_bug.cgi?id=230172#c48)
 to boot FreeBSD properly, but it's perfectly capable of shuffling data from the network port to the backup drive.
 
 In the motherboard settings, make sure *AHCI is enabled* for the SATA port attached to the removable drive to allow the hot swap feature to operate.
-My own machine is a little quirky and will not enable the hot swap feature unless there is a drive present in the hot swap bay as the system boots.
+My own machine is a little quirky and will not enable the hot swap feature unless there is a drive present in the bay as the system boots.
 Once booted, the feature operates properly and the drive can be hot swapped as many times as needed.
-
-##### Prepare the Removable Backup Drive
-
-To prepare the removable drive, insert it into the hot swap bay and create the backup partition, geli container and backup zpool.
-In this example, the system assigns device node **ada1** to the drive.
-Use a different password for the backup drives than those used for the system itself.
 
 {{< highlight txt >}}
 $ su
 Password:
 
+# uname -a
+FreeBSD backup.ccammack.com 12.1-RELEASE FreeBSD 12.1-RELEASE r354233 GENERIC  amd64
+
+# ifconfig | grep inet
+        inet 192.168.1.112
+[...]
+{{< /highlight >}}
+
+---
+
+##### Enable NTP
+
+By default, the FreeBSD installer does not enable NTP, so the system clock may drift over time on some machines. Enable it if needed to keep the clock synchronized with the network time servers.
+
+{{< highlight txt >}}
+# tzsetup
+[...]
+
+# service ntpd stop
+ntpd not running? (check /var/db/ntp/ntpd.pid).
+
+# ntpd -gq
+26 Jul 20:41:16 ntpd[26436]: ntpd 4.2.8p12-a (1): Starting
+[...]
+ntpd: time slew +0.000209s
+
+# sysrc ntpd_enable="YES"
+ntpd_enable: NO -> YES
+
+# sysrc ntpd_sync_on_start="YES"
+ntpd_sync_on_start: NO -> YES
+
+# service ntpd start
+Starting ntpd.
+{{< /highlight >}}
+
+---
+
+##### Prepare Each Removable Backup Drive
+
+To prepare each removable drive, insert it into the hot swap bay and create the backup partition, geli container and backup zpool.
+In this example, the system assigns device node **ada1** to the drive.
+
+Use the same password for all of the backup drives, which should be different than any password used for the system itself.
+
+{{< highlight txt >}}
 # dmesg
 [...]
 ada1 at ahcich1 bus 0 scbus1 target 0 lun 0
@@ -82,7 +131,7 @@ backup  3.62T   336K  3.62T        -         -     0%     0%  1.00x  ONLINE  -
 zroot    117G  2.98G   114G        -         -     3%     2%  1.00x  ONLINE  -
 {{< /highlight >}}
 
-After preparing the drive, `export` the backup pool, `detach` the geli device and **remove the drive** from the system.
+After preparing the drive, `export` the backup pool, `detach` the geli device and remove the drive from the system.
 
 {{< highlight txt >}}
 # zpool export backup
@@ -101,13 +150,94 @@ gpt/backup.eli  ACTIVE  gpt/backup
 [...]
 {{< /highlight >}}
 
+Repeat this process for the other removable drives in the backup set.
+
+---
+
+##### Create an Empty Backup Script
+
+Create the backup script `/usr/local/sbin/backup.sh`, make it executable for `root` and add the hashbang line to the top.
+To allow the script to automount the backup `geli` container when the drive is inserted, `echo` the backup drives' `geli` password into `/usr/local/etc/backup.passwd`.
+Spend a few moments in quiet reflection, considering the implications of that decision.
+Double-check the permissions for both files.
+
+{{< highlight txt >}}
+# cd /usr/local/sbin
+# ls backup.sh
+ls: backup.sh: No such file or directory
+# touch backup.sh
+# chmod u+x backup.sh
+# echo '#\!/bin/sh' > backup.sh
+# cat backup.sh
+#!/bin/sh
+# ls -alg backup.sh
+-rwxr--r--  1 root  wheel  0 Jun 16 22:30 backup.sh
+
+# cd /usr/local/etc
+# ls backup.passwd
+ls: backup.passwd: No such file or directory
+# touch backup.passwd
+# chmod go= backup.passwd
+# echo "1234" > backup.passwd
+# cat backup.passwd
+1234
+# ls -alg backup.passwd
+-rw-------  1 root  wheel  25 Jun 16 22:37 backup.passwd
+{{< /highlight >}}
+
+---
+
+##### Create a Dedicated User to Perform the Backups
+
+Create a new user called `backup` whose only task will be to run the backup script.
+
+{{< highlight txt >}}
+# pw useradd -n backup -m -s /bin/sh
+
+# passwd backup
+Changing local password for backup
+New Password:
+Retype New Password:
+{{< /highlight >}}
+
+Since the `backup` user will need to perform some actions that normally require `root` access, install [`doas`](https://www.freebsd.org/cgi/man.cgi?query=doas) and configure the `backup` user to run the script as `root`.
+
+{{< highlight txt >}}
+# pkg install -y doas
+[..]
+
+# echo 'permit nopass backup as root cmd /usr/local/sbin/backup.sh' >> /usr/local/etc/doas.conf
+
+# cat /usr/local/etc/doas.conf
+permit nopass backup as root cmd /usr/local/sbin/backup.sh
+{{< /highlight >}}
+
+Switch to the `backup` user and make sure that the script refuses to run unless the *full path* of the script is specified with `doas`.
+After testing, `exit` back to the `root` user.
+
+{{< highlight txt >}}
+# su backup
+$ whoami
+backup
+$ cd /usr/local/sbin/
+$ backup.sh
+su: backup.sh: Permission denied
+$ doas backup.sh
+doas: Operation not permitted
+$ /usr/local/sbin/backup.sh
+su: /usr/local/sbin/backup.sh: Permission denied
+$ doas /usr/local/sbin/backup.sh
+$ exit
+#
+{{< /highlight >}}
+
 ---
 
 ##### Detect Drive Insertion
 
 FreeBSD uses the `devd` system to detect hardware changes such as inserting a drive into the hot swap bay.
-Use `nc` to snoop the messages on `devd.pipe` and then **insert the drive** and wait for the `GEOM` `CREATE` messages to appear after a few seconds.
-**Remove the drive** again and wait for the corresponding `GEOM` `DESTROY` messages, then press `Ctrl-C` to get the command prompt back.
+Use `nc` to snoop the messages on `devd.pipe` and then insert the drive and wait for the `GEOM` `CREATE` messages to appear after a few seconds.
+Remove the drive again and wait for the corresponding `GEOM` `DESTROY` messages, then press `Ctrl-C` to get the command prompt back.
 
 {{< highlight txt >}}
 # nc -U /var/run/devd.pipe
@@ -122,7 +252,7 @@ The default configuration file for `devd` uses *directory* directives to indicat
 Use `grep` to see what the default configuration file expects and note that `/etc/devd` is the default location for config files created by the system.
 User config files should be added to the secondary location, which is specified as `/usr/local/etc/devd`.
 
-Consult the [man pages for `devd.conf`](https://www.freebsd.org/cgi/man.cgi?query=devd.conf) for more information about detecting hardware events
+Consult the [man pages](https://www.freebsd.org/cgi/man.cgi?query=devd.conf) for `devd.conf` for more information about detecting hardware events
 and the configuration file format.
 
 {{< highlight txt >}}
@@ -182,7 +312,7 @@ May 30 01:01:41 server ccammack[53177]: Backup drive ejected
 ^C
 {{< /highlight >}}
 
-Once the basic `devd` functionality works, change the `action` sub-statements in the config file to call a shell script elsewhere in the system and restart the `devd` service again.
+Once the basic `devd` functionality works, change the `action` sub-statements in the config file to call the backup script and restart the `devd` service.
 
 {{< highlight txt >}}
 # ee /usr/local/etc/devd/backup.conf
@@ -191,12 +321,12 @@ Once the basic `devd` functionality works, change the `action` sub-statements in
 # cat /usr/local/etc/devd/backup.conf
 notify 100 {
     [...]
-    action "/home/ccammack/bin/backup.sh --on-insert &";
+    action "su -l backup -c 'doas /usr/local/sbin/backup.sh --on-insert' &";
 };
 
 notify 100 {
     [...]
-    action "/home/ccammack/bin/backup.sh --on-eject &";
+    action "su -l backup -c 'doas /usr/local/sbin/backup.sh --on-eject' &";
 };
 
 # service devd restart
@@ -207,55 +337,37 @@ Starting devd.
 
 ---
 
-##### Create an Empty Backup Script
-
-Create an empty backup script that can be called by `devd`.
-To allow the script to automount the `geli` container when the drive is inserted, `echo` the backup drive's `geli` password into a text file in the same folder.
-Spend a few moments in quiet reflection, doubting the wisdom of that decision.
-
-{{< highlight txt >}}
-# mkdir -p /home/ccammack/bin
-# touch /home/ccammack/bin/backup.sh
-# chmod +x /home/ccammack/bin/backup.sh
-# echo "1234" > /home/ccammack/bin/backup.pass
-# chmod go= /home/ccammack/bin/backup.pass
-{{< /highlight >}}
-
 ##### Add Blinkenlights
 
-I'm using a [blink(1)](/posts/display-server-notifications-using-a-blink1/) to give visual feedback during the backup process,
-so the first part of the backup script will specify some colors and functions to start and stop a repeating pattern of flashes.
-Calling the `blink1-tool` with `--playpattern <patternstr>` seems to be the easiest way to specify a repeating sequence of color flashes on the device.
-Include an `exit` at the top of the script to prevent it from running by accident until it is ready for testing.
+The backup script relies on the blink(1) to give visual feedback during operation, so install it as [explained here](/posts/display-server-notifications-using-a-blink1/).
+
+To control the blink(1), the first part of the script specifies some colors and functions to start and stop a repeating pattern of flashes using the `--playpattern` option.
 
 {{< highlight txt >}}
-# ee /home/ccammack/bin/backup.sh
+# ee /usr/local/sbin/backup.sh
 [...]
 
-# cat /home/ccammack/bin/backup.sh
+# cat /usr/local/sbin/backup.sh
 #!/bin/sh
-
-exit
 
 blink1="/usr/local/bin/blink1-tool"
 
-OFF="#000000,0.25,0,"
-RED="#ff0000,0.25,0,${OFF}"
-GREEN="#00ff00,0.25,0,${OFF}"
-BLUE="#0000ff,0.25,0,${OFF}"
-ORANGE="#ff8000,0.25,0,${OFF}"
-CYAN="#00ffff,0.25,0,${OFF}"
-MAGENTA="#ff00ff,0.25,0,${OFF}"
-WHITE="#ffffff,0.25,0,${OFF}"
+SPACE="#000000,0.25,0,"
+RED="#ff0000,0.25,0,${SPACE}"
+GREEN="#00ff00,0.25,0,${SPACE}"
+BLUE="#0000ff,0.25,0,${SPACE}"
+MAGENTA="#ff00ff,0.25,0,${SPACE}"
+WHITE="#ffffff,0.25,0,${SPACE}"
+OFF="#000000,0.25,0,${SPACE}"
 
 blink_clear_pattern() {
-  pkill blink1-tool ; $blink1 --off >/dev/null 2>&1
+  pkill blink1-tool; $blink1 --off >/dev/null 2>&1
 }
 
 blink_play_pattern() {
-  # usage: blink_play_pattern "$RED$GREEN$BLUE"
+  # usage: blink_play_pattern "${RED}${GREEN}${BLUE}"
   blink_clear_pattern
-  BEGIN="'0," ; END="#000000,1.5,0'"
+  BEGIN="'0,"; END="#000000,1.5,0'"
   p=${BEGIN}${1}${END}
   $blink1 --playpattern "$p" -b 64 -m 0 -q >/dev/null 2>&1 &
 }
@@ -263,27 +375,40 @@ blink_play_pattern() {
 [...]
 {{< /highlight >}}
 
-##### Outline the Backup Script
+---
+
+##### Add the Basic Script Structure
 
 My backup procedure calls for swapping the drives every morning. When a fresh drive is inserted, the system will automatically mount it and begin making backups.
 Backups will repeat periodically until early the next morning and then the system will automatically unmount the drive so it can be swapped for the next one.
 
-To do this, the script relies on three functions: the *initialize* and *terminate* functions will mount and unmount the backup drive, preparing for backup and cleaning up afterwards;
+To do this, the script relies on three functions: the *initialize* and *terminate* functions mount and unmount the backup drive, preparing for backup and cleaning up afterwards;
 the *backup* function performs the backup commands, sleeping for a while between each iteration.
 If any command inside the *initialize* function fails, the *backup* function will be skipped, but the *terminate* function will still run for cleanup.
 
-All three functions redirect their command outputs to the system logger and emit one or more colors to *stdout* so the script can display the results of each step on the blink(1).
-This example script flashes *blue* during the *backup* step and then a repeating sequence of three *green* or *red* lights at the end to
+All three functions redirect their command outputs to the system logger and store their results in the corresponding result variable so the script can give visual feedback.
+The LED flashes *blue* during the *backup* step and then a repeating sequence of three *green* or *red* lights at the end to
 indicate the results of the *initialize*, *backup* and *terminate* functions, respectively.
 
-The second half of the backup script implements these three functions plus a couple of helper functions.
+The second half of the backup script implements these three functions plus some helper functions.
+This section also includes result variables to hold the final output colors for each step of the backup, all of which default to `$RED` to indicate failure.
 
 {{< highlight txt >}}
-# ee /home/ccammack/bin/backup.sh
+# ee /usr/local/sbin/backup.sh
 [...]
 
-# cat /home/ccammack/bin/backup.sh
+# cat /usr/local/sbin/backup.sh
 [...]
+
+# blink(1) status results for each step
+res_initialize="${RED}"
+res_backup="${RED}"
+res_terminate="${RED}"
+res_status="\${res_initialize}\${res_backup}\${res_terminate}"
+
+blink_play_status() {
+  blink_play_pattern "$(eval echo "${res_status}")"
+}
 
 log() {
   logger "$(basename "$0"): ${1}" >/dev/null 2>&1
@@ -291,26 +416,25 @@ log() {
 
 run() {
   # redirect stdout and stderr from command to log and return $?
-  output=$("$@" 2>&1) ; error=$? ; log "$output" ; return $error
+  output=$("$@" 2>&1); error=$?; log "$output"; return $error
 }
 
 initialize() {
-  # abort if prerequisites are already running
-  run geli status gpt/backup.eli ||
-    run zpool list backup ||
-    run service samba_server onestatus
-  [ $? -eq 0 ] &&
-    log "prerequisites are already running" &&
-    printf %s $RED && return 2
+  # abort if the backup drive is already mounted
+  if run geli status gpt/backup.eli || \
+     run zpool list backup
+  then
+    log "the backup drive is already mounted"; return 2
+  fi
 
-  # TODO: find a better way to manage the geli password
-  run geli attach -j /home/ccammack/bin/backup.pass /dev/gpt/backup &&
-    run zpool import backup &&
-    run service samba_server onestart
-  [ $? -ne 0 ] &&
-    printf %s $RED && return 1
+  # mount the backup drive
+  if run geli attach -j /usr/local/etc/backup.passwd /dev/gpt/backup && \
+     run zpool import backup
+  then
+    res_initialize="${GREEN}"; return 0
+  fi
 
-  printf %s $GREEN && return 0
+  return 1
 }
 
 backup() {
@@ -319,7 +443,7 @@ backup() {
   until [ "$(date +"%Y%m%d%H%M%S")" -gt "$end" ]
   do
     # perform backup commands
-    blink_play_pattern "$BLUE"
+    blink_play_pattern "${BLUE}"
 
     # sleep 15 minutes between backup cycles
     sleep 900
@@ -329,26 +453,30 @@ backup() {
 }
 
 terminate() {
-  run service samba_server onestop ; a=$?
-  run zpool export backup ; b=$?
-  run geli detach gpt/backup.eli ; c=$?
-  error=$(( a + b + c ))
-  [ $error -ne 0 ] && printf %s $RED && return 1
-  printf %s $GREEN && return 0
+  while run zpool list backup; do
+    run zpool export backup && break
+    sleep 60
+  done
+  while run geli status gpt/backup.eli; do
+    run geli detach gpt/backup.eli && break
+    sleep 60
+  done
+
+  res_terminate="${GREEN}"
 }
 
-if [ "$(pgrep -fl "$(basename "$0")" | grep -cv -e "^$$")" -gt 1 ]; then
+if [ "$(pgrep -fl "$(basename "$0")" | wc -l)" -gt 0 ]; then
   # abort if the script is already running
-  procs="$(pgrep -fl "$(basename "$0")" | tr '\n' ' ')"
-  log "already running as ${procs}"
-  echo "$(basename "$0"): already running as ${procs}"
+  instances="$(pgrep -fl "$(basename "$0")")"
+  log "already running ${instances}"
+  echo "$(basename "$0"): already running ${instances}"
+  exit 1
 elif [ "$1" = "--on-insert" ]; then
   # process on-insert
-  p=$(initialize) ; error=$?
-  [ $error -gt 1 ] && blink_play_pattern "$p" && exit
-  [ $error -gt 0 ] && p=${p}${RED} || p=${p}$(backup)
-  p=${p}$(terminate)
-  blink_play_pattern "$p"
+  initialize; error=$?
+  [ $error -eq 2 ] && { blink_play_status; exit; }
+  [ $error -eq 0 ] && backup
+  blink_play_status; terminate; blink_play_status
 elif [ "$1" = "--on-eject" ]; then
   # process on-eject
   blink_clear_pattern
@@ -357,52 +485,100 @@ fi
 
 ---
 
-##### Insert the Backup Drive
+##### First Drive Insertion Test
 
-Assuming that the backup script contains an `exit` at the top, it should be safe to insert the backup drive now and mount it by hand to configure the first backup client.
+To run a basic functionality test on the script at this point, run `tail -f` to keep an eye on the logs and then *insert* the removable drive.
 
 {{< highlight txt >}}
-# dmesg
-[...]
-ada1 at ahcich1 bus 0 scbus1 target 0 lun 0
-ada1: <Hitachi HUS724040ALE641 MJAOA5F0> ATA8-ACS SATA 3.x device
-ada1: Serial Number P4H3KUPC
-ada1: 300.000MB/s transfers (SATA 2.x, UDMA6, PIO 8192bytes)
-ada1: Command Queueing enabled
-ada1: 3815447MB (7814037168 512 byte sectors)
-
-# geli attach /dev/gpt/backup
-Enter passphrase:
-
-# geli status
-[...]
-gpt/backup.eli  ACTIVE  gpt/backup
-
-# zpool import backup
-
-# zpool list
-NAME     SIZE  ALLOC   FREE  CKPOINT  EXPANDSZ   FRAG    CAP  DEDUP  HEALTH  ALTROOT
-backup  3.62T  2.43M  3.62T        -         -     0%     0%  1.00x  ONLINE  -
+# tail -f /var/log/messages
 [...]
 {{< /highlight >}}
 
-##### Create a New User Group for the Backup Clients
+Within a few seconds, the script should auto-mount the drive and the blink(1) should begin flashing *blue*.
 
-Before adding the first backup client to the server, create a new user group named **backup** that they will all share to allow them to be treated as a group if needed.
+If you were to leave it running like this until after 3AM tomorrow, the drive should automatically dismount and the blink(1) should begin flashing
+*green*-*red*-*green* to indicate the results of the *initialize*, *backup* and *terminate* functions.
+In general, any color other than *green* indicates an error in the corresponding function, which will also appear in the system log.
+(In this case, the *backup* step flashes *red* at this point because the backup function is just a placeholder.)
+
+If the blink(1) flashes **red for the terminate step, do not physically eject** the drive from the server until you have manually entered the proper commands
+to cancel the backup script and dismount the drive.
+
+For now, rather than waiting until tomorrow for the script to finish, cancel the backup script as described in the next section and eject the drive from the system.
+
+>You'll eventually eject a drive by accident that hasn't been properly dismounted, so here's what I do when that happens.
+There might be a more elegant way to solve this, but I just accept the loss of the data on the backup drive and use brute force to repartition it and bring it back as a blank disk.
+(I have lots of backups.)
+Put an `exit` at the top of the backup script to prevent it from running temporarily.
+Reboot the server and use `zpool destroy -f backup` to destroy the orphaned backup pool by force, then repartition the drive as explained in the section called **Prepare Each Removable Backup Drive**.
+After creating the partition, GELI container and zpool, create the datasets needed for each client as explained in the rest of this post.
+The section below called **Adding a New Backup Drive to the Rotation** summarizes all of these steps for the example clients given here.
+
+---
+
+##### Cancel the Running Backup Script and Dismount Manually
+
+Cancel the running backup script and the `blink1-tool` using `pkill`, then
+use `zpool export` and `geli detach` to completely dismount the drive in FreeBSD before physically ejecting it from the case.
 
 {{< highlight txt >}}
-# pw groupadd backup
+# pkill -f backup.sh; pkill blink1-tool
+
+# zpool export backup; geli detach gpt/backup.eli
 {{< /highlight >}}
 
 ---
 
 ##### Configure Samba Access
 
-Samba network shares are widely supported by Windows, Mac and Unix-like systems and are a good default backup destination unless there is a reason to use something else.
-The *initialize* and *terminate* functions start and stop the `samba` service so other machines on the LAN can perform their backups over Samba.
-Create a separate user account and Samba share for each client to prevent rogue clients from deleting each other's backups.
+Samba network shares are widely supported by Windows, Mac and Unix-like systems and are a good destination for client-side backup software unless there is a reason to use something else.
 
-Find and install the latest version of Samba.
+In general, it's safest to create a separate user account and destination dataset for each client that needs to back itself up.
+Keeping the backup data for each client separate like this helps prevent them from accidentally overwriting each others' backups.
+
+Also, the destination dataset for each client must be created on each removable drive in the backup set, so you'll have to rotate
+through each of the drives during configuration to create them.
+
+The rest of this example assumes that I am setting up Samba access for a desktop client named **desktop** which is running Windows 8.
+
+First, create a new user account called **desktop** and add it to the *backup* group.
+
+{{< highlight txt >}}
+# pw useradd -n desktop -m -s /bin/sh -G backup
+
+# passwd desktop
+Changing local password for desktop
+New Password:
+Retype New Password:
+{{< /highlight >}}
+
+Next, insert the first removable drive into the server, allow it to mount until the blink(1) begins flashing *blue*
+and use `zfs create` to create a new dataset, named after the **desktop** client, where it can store its backup files.
+
+After creating the dataset and setting its permissions, use `pkill` to cancel the script and then `export` and `detach` the drive before ejecting it from the backup server.
+
+Repeat for the other removable drives.
+
+{{< highlight txt >}}
+# zfs create -o casesensitivity=mixed backup/desktop
+
+# zfs list
+NAME                           USED  AVAIL  REFER  MOUNTPOINT
+backup                        2.08M  3.51T    88K  /backup
+backup/desktop                  88K  3.51T    88K  /backup/desktop
+[...]
+
+# chown -R desktop:backup /backup/desktop
+
+# ls -alg /backup
+[...]
+drwxr-xr-x   2 desktop  backup   2 Sep  6 00:55 desktop
+
+# pkill -f backup.sh; pkill blink1-tool
+# zpool export backup; geli detach gpt/backup.eli
+{{< /highlight >}}
+
+After the destination datasets have been created on the removable backup drives, find and install the latest version of Samba.
 
 {{< highlight txt >}}
 # pkg search samba
@@ -413,52 +589,7 @@ samba410-4.10.15               Free SMB/CIFS and AD/DC server and client for Uni
 [...]
 {{< /highlight >}}
 
-Create a user account for the first client, which is a Windows machine called **desktop** in this example.
-Remember to add the user to the **backup** group.
-
-{{< highlight txt >}}
-# adduser
-Username: desktop
-Full name:
-Uid (Leave empty for default):
-Login group [desktop]:
-Login group is desktop. Invite desktop into other groups? []: backup
-Login class [default]:
-Shell (sh csh tcsh git-shell nologin) [sh]:
-Home directory [/home/desktop]:
-Home directory permissions (Leave empty for default):
-Use password-based authentication? [yes]:
-Use an empty password? (yes/no) [no]:
-Use a random password? (yes/no) [no]:
-Enter password:
-Enter password again:
-Lock out the account after creation? [no]:
-[...]
-OK? (yes/no): yes
-adduser: INFO: Successfully added (desktop) to the user database.
-Add another user? (yes/no): no
-Goodbye!
-{{< /highlight >}}
-
-Create a Samba share folder for the client on the backup drive, using the **same name** as the client's user name.
-
-{{< highlight txt >}}
-# zfs create backup/desktop
-
-# zfs list
-NAME                 USED  AVAIL  REFER  MOUNTPOINT
-backup              1.67M  3.51T    88K  /backup
-backup/desktop        88K  3.51T    88K  /backup/desktop
-[...]
-
-# chown -R desktop:desktop /backup/desktop
-
-# ls -alg /backup
-[...]
-drwxr-xr-x   2 desktop  desktop   2 Jun  5 00:20 desktop
-{{< /highlight >}}
-
-Edit the Samba configuration file `/usr/local/etc/smb4.conf` to configure global and client share settings.
+Edit the Samba configuration file `/usr/local/etc/smb4.conf` to configure the global and per-client share settings.
 
 {{< highlight txt >}}
 # ee /usr/local/etc/smb4.conf
@@ -483,9 +614,9 @@ force user = desktop
 writable = yes
 {{< /highlight >}}
 
-Use `pdbedit` to map the user account to the Samba database.
+Use `pdbedit` to map the **desktop** user account to the Samba database.
 Samba uses a separate password database from the system, so `pdbedit` will ask for a new Samba-specific password.
-I won't tell anyone if you decide to use the same password for both Samba and the user account.
+(I won't tell anyone if you decide to use the same password for both Samba and the user account.)
 
 {{< highlight txt >}}
 # pdbedit --create --user=desktop
@@ -494,72 +625,54 @@ retype new password:
 [...]
 {{< /highlight >}}
 
-To test Samba by itself, start the service and make sure the share appears on the client machine.
-If needed, enable the checkbox that causes the system to remember the user name and password for future connections.
+Use `sysrc` to add `samba_server_enable=YES` to the system’s rc.conf and then start the Samba server manually.
 
 {{< highlight txt >}}
-# service samba_server onestart
+# sysrc samba_server_enable=YES
+samba_server_enable:  -> YES
+
+# service samba_server start
 Performing sanity check on Samba configuration: OK
 Starting nmbd.
 Starting smbd.
-Starting winbindd.
 {{< /highlight >}}
+
+Insert one of the backup drives, wait for the flashing *blue* LED and the **\\\BACKUP** Samba share should appear on the local network.
+Connect using the **desktop** user id and password and enable the checkbox that causes the system to remember them for future connections.
 
 {{< figure src="testing-samba.png" alt="Testing Samba">}}
 
-Once Samba works properly, `stop` the service, `export` the backup pool and `geli detach`.
-Edit the backup script again and comment out or remove the `exit` command at the top of the script.
-Finally, physically eject the hard drive from the server.
+>If the Samba share does not automatically appear on the network, it should still be accessible by entering the IP address of the server
+in the file explorer as something like **\\\192.168.1.112** rather than **\\\BACKUP**.
+{{< figure src="testing-samba-using-ip.png" alt="Testing Samba Using IP">}}
+
+The network share will remain available until after 3AM the following day so the client can save files to it, or you can cancel and dismount manually if needed.
 
 {{< highlight txt >}}
-# service samba_server onestop
-[...]
+# pkill -f backup.sh; pkill blink1-tool
 
-# zpool export backup
-
-# geli detach gpt/backup.eli
-
-# ee /home/ccammack/bin/backup.sh
-[...]
-
-# head /home/ccammack/bin/backup.sh
-#!/bin/sh
-
-#exit
-
-blink1="/usr/local/bin/blink1-tool"
-[...]
+# zpool export backup; geli detach gpt/backup.eli
 {{< /highlight >}}
 
-##### First Insert/Eject Test with Samba
+---
 
-At this point, the backup server should be ready to use, assuming that Samba is the only requirement.
+##### Pull Mode vs. Push Mode Backups
 
-Use `tail -f` again to keep an eye on the log and then **insert** the removable drive.
-The backup script should auto-mount the drive and start Samba and then the blink(1) should begin flashing *blue* every few seconds.
-The Samba share should be reachable from the client machine and will remain available until 3AM the following day so the client can save files to it.
+Ideally, a backup scheme should operate in *pull mode*, where the backup server logs into each client and collects the data it needs,
+rather than in *push mode*, where each client has independent access to the backup server and writes data to the server on its own schedule.
 
-After 3AM the following day, the drive will automatically dismount and the blink(1) will begin repeating three *green* flashes to indicate that the *initialize*, *backup* and *terminate* functions all ran without error.
-Any color other than green indicates an error in the corresponding function, which will appear in the system log.
-If there are **any flashing red lights, do not physically eject the drive** from the server until you have properly entered the commands to dismount the drive manually.
+In my case, I'm using several different kinds of client-side software to back up each host, so pushing data to the backup server is my only option for those machines.
+Because the system dismounts the backup drive around 3AM each morning, I schedule each client to stop performing backups at midnight to give them enough time to finish.
 
-#### Cancel a Running Backup Script and Dismount Manually
+In theory it shouldn't matter: the server will not take the backup drive offline if a client is currently writing to it
+and the client backup software should be able to handle cases where the destination suddenly disappears.
+Still, it's something to consider.
 
-Use `pkill` to interrupt the backup script and clear the blink(1) if needed. Remember to stop the `samba` service and dismount the drive in the OS before physically ejecting it from the case.
+---
 
-{{< highlight txt >}}
-# pkill -f backup.sh ; pkill blink1-tool
+##### Test a Windows Backup Over Samba Using restic
 
-# service samba_server onestop ; zpool export backup ; geli detach gpt/backup.eli
-[...]
-
-# service samba_server onestatus ; zpool list ; geli status
-[...]
-{{< /highlight >}}
-
-#### Test a Windows Backup Over Samba Using restic
-
-The example below shows what a test run would look like on Windows using client-side backup software like [restic](https://restic.net/):
+The example below shows what a test run would look like on Windows performing a client-side backup using [restic](https://restic.net/):
 
 1. Insert the backup drive into the server and wait for the LED to start flashing *blue*
 1. Create a new temporary folder and file on the Windows machine
@@ -599,38 +712,25 @@ MD5 hash of file c:\test\c\test\random.bin:
 
 ---
 
-#### Configure SFTP Access
+##### Configure SFTP Access
 
 Aside from Samba, another commonly supported way to send backups over the network is to use the *SSH File Transfer Protocol*.
-This example sets up SFTP access for backups transferred from a laptop running Ubutntu 20.04.
+Create a separate user account and dataset for each client to prevent rogue clients from deleting each other's backups.
 
-To configure the backup server for SFTP, first create a new client user account called **laptop** and add it to the **backup** group.
+The following example sets up SFTP access on the backup server for a laptop client running Ubutntu 20.04.
+To configure the server, first create a new user account called **laptop** and add it to the **backup** group.
 
 {{< highlight txt >}}
-# adduser
-Username: laptop
-Full name:
-Uid (Leave empty for default):
-Login group [laptop]:
-Login group is laptop. Invite laptop into other groups? []: backup
-Login class [default]:
-Shell (sh csh tcsh git-shell nologin) [sh]:
-Home directory [/home/laptop]:
-Home directory permissions (Leave empty for default):
-Use password-based authentication? [yes]:
-Use an empty password? (yes/no) [no]:
-Use a random password? (yes/no) [no]:
-Enter password:
-Enter password again:
-Lock out the account after creation? [no]:
-[...]
-OK? (yes/no): yes
-adduser: INFO: Successfully added (laptop) to the user database.
-Add another user? (yes/no): no
-Goodbye!
+# pw useradd -n laptop -m -s /bin/sh -G backup
+
+# passwd laptop
+Changing local password for laptop
+New Password:
+Retype New Password:
 {{< /highlight >}}
 
-Next, create a new directory for the **laptop** user account where it can store its backup files, using the **same name** as the user account.
+Next, create a new dataset, named after the **laptop** client, where it can store its backup files.
+Repeat this for all removable drives in the backup set.
 
 {{< highlight txt >}}
 # zfs create backup/laptop
@@ -638,14 +738,16 @@ Next, create a new directory for the **laptop** user account where it can store 
 # zfs list
 NAME                 USED  AVAIL  REFER  MOUNTPOINT
 backup              2.02M  3.51T    88K  /backup
-backup/dekstop        88K  3.51T    88K  /backup/dekstop
+backup/desktop        88K  3.51T    88K  /backup/desktop
 backup/laptop         88K  3.51T    88K  /backup/laptop
+[...]
 
-# chown -R laptop:laptop /backup/laptop
+# chown -R laptop:backup /backup/laptop
 
 # ls -alg /backup
 [...]
-drwxr-xr-x   2 laptop   laptop    2 Jun  9 23:18 laptop
+drwxr-xr-x   2 desktop  backup    2 Jun  9 23:18 desktop
+drwxr-xr-x   2 laptop   backup    2 Jun  9 23:18 laptop
 {{< /highlight >}}
 
 To ensure that the client can log into the backup server initially with a user name and password, edit `/etc/ssh/sshd_config` to set `PasswordAuthentication` to `yes` and then restart `sshd`.
@@ -669,7 +771,9 @@ Welcome to FreeBSD!
 [...]
 {{< /highlight >}}
 
-#### Test an Ubuntu Backup Over SFTP Using Déjà Dup
+---
+
+##### Test an Ubuntu Backup Over SFTP Using Déjà Dup
 
 Some client backup software supports SFTP logins using user names and passwords.
 
@@ -691,7 +795,9 @@ Select the option to encrypt the backup files with a password if desired and the
 {{< figure src="duplicity-encrypt.png" alt="Duplicity: Encrypt with password">}}
 {{< figure src="duplicity-starting-backup.png" alt="Duplicity: Starting backup">}}
 
-#### Prefer SSH Keys Over Passwords
+---
+
+##### Prefer SSH Keys Over Passwords
 
 Some backup software might require the use of *SSH keys* rather than passwords, and it's generally better to use them rather than passwords if possible.
 There are many options for SSH key management, but they all follow the same basic procedure:
@@ -705,13 +811,15 @@ or by relying on a keyring manager ([console](https://www.funtoo.org/Keychain) o
 
 See [SSH Mastery](https://www.amazon.com/SSH-Mastery-OpenSSH-PuTTY-Tunnels-ebook/dp/B079NL1L9K) for more information.
 
-#### Restrict Each Client to Its Own Backup Directory
+---
 
-With either login method, once the client can automatically log into the SFTP server to save the backups, it's good to restrict each
+##### Restrict Each Client to Its Own Backup Directory
+
+After the clients have been configured to log into the SFTP server to save their backups, it's good to restrict each
 client to its own directory on the server to prevent rogue clients from accidentally overwriting each other's backup files.
 
-To do this, add a new `Match` block to the bottom of the *sshd* configuration that matches each member of the *backup* group
-and uses `ChrootDirectory` and `ForceCommand` to restrict each of them to their own backup directory.
+To do this, add a new `Match` block to the bottom of the *sshd* configuration that matches all members of the *backup* group
+and uses `ChrootDirectory` and `ForceCommand` to restrict each of them to its own backup directory.
 
 Restart the `sshd` service to put the new configuration into effect.
 
@@ -742,9 +850,8 @@ After making this change, also change the destination **Folder** in the backup s
 
 ##### Configure the Backup Server to Back Itself Up
 
-Since the backup server is running FreeBSD on ZFS, back up the backup server to itself using
-[zfs-auto-snapshot](/posts/schedule-zfs-snapshots-using-zfs-auto-snapshot/) and
-[zxfer](/posts/back-up-zfs-to-a-removable-drive-using-zxfer/).
+Since the backup server is running FreeBSD with ZFS, use [zfs-auto-snapshot](/posts/schedule-zfs-snapshots-using-zfs-auto-snapshot/) and
+[zxfer](/posts/back-up-zfs-to-a-removable-drive-using-zxfer/) to back up the backup server to itself.
 
 First, set up [zfs-auto-snapshot](/posts/schedule-zfs-snapshots-using-zfs-auto-snapshot/) and then use `zfs list -t` to make sure snapshots are being generated.
 
@@ -757,7 +864,7 @@ zroot@zfs-auto-snap_daily-2020-06-11-00h07                      0      -    88K 
 [...]
 {{< /highlight >}}
 
-Next, install [zxfer](/posts/back-up-zfs-to-a-removable-drive-using-zxfer/) and create a new dataset for the host's backup files.
+Next, install `zxfer` and create a new dataset for the host's backup files on each removable drive.
 
 {{< highlight txt >}}
 # pkg search zxfer
@@ -766,13 +873,16 @@ zxfer-1.1.7                    Easily and reliably transfer ZFS filesystems
 # pkg install -y zxfer
 [...]
 
-# zfs create backup/`hostname`
-
-# zpool list
-[...]
+# zfs create backup/`hostname -s`
 
 # zfs list
 [...]
+
+# chown -R backup:backup /backup/`hostname -s`
+
+# ls -alg /backup
+[...]
+drwxr-xr-x   2 backup  backup   2 Sep  6 00:55 backup
 {{< /highlight >}}
 
 Finally, call `zxfer` from inside the script's `backup` function.
@@ -782,25 +892,220 @@ will flash *green* to report that the overall process succeeded if at least one 
 {{< highlight txt >}}
 backup() {
   # track backup attempts and successes
-  self_try=0 ; self_win=0
+  self_tries=0; self_successes=0
 
   # repeat until 3AM tomorrow
   end=$(date -v+1d +"%Y%m%d030000")
   until [ "$(date +"%Y%m%d%H%M%S")" -gt "$end" ]
   do
     # perform backup commands
-    blink_play_pattern "$BLUE"
-    self_try=$((self_try+1))
-    run /usr/local/sbin/zxfer -dFkPv -g 376 \
-      -I com.sun:auto-snapshot -R zroot backup/"$(hostname)"
-    [ $? -eq 0 ] && self_win=$((self_win+1))
+    blink_play_pattern "${BLUE}"
+	
+	# back up self
+    self_tries=$((self_tries+1))
+    if run /usr/local/sbin/zxfer -dFkPv -g 376 \
+      -I com.sun:auto-snapshot \
+	  -R zroot backup/"$(hostname -s)"
+	then
+      self_successes=$((self_successes+1))
+	fi
 
     # sleep 15 minutes between backup cycles
     sleep 900
   done
 
-  log "$(hostname) successfully backed up ${self_win}/${self_try} times"
-  [ $self_win -gt 0 ] && printf %s $GREEN || printf %s $RED
+  # report backup results
+  log "$(hostname -s) backed up ${self_successes}/${self_tries} attempts"
+  if [ $self_successes -gt 0 ]; then
+    res_backup="${GREEN}"
+  fi
+
+  return 0
+}
+{{< /highlight >}}
+
+---
+
+##### Back Up FreeBSD Clients to the Backup Sever
+
+If the network contains any other machines running FreeBSD, they can also be backed up in *pull* mode over `ssh` using `zfs-auto-snapshot` and `zxfer`.
+
+In this example, the FreeBSD client to be backed up is named **bsdclient**.
+
+{{< highlight txt >}}
+$ su
+Password:
+
+# uname -a
+FreeBSD bsdclient 12.1-RELEASE FreeBSD 12.1-RELEASE r354233 GENERIC  amd64
+
+# ifconfig | grep inet
+        inet 192.168.1.108 netmask 0xffffff00 broadcast 192.168.1.255
+[...]
+{{< /highlight >}}
+
+ZFS replication depends on snapshots, so log into the **bsdclient** machine
+and set up [zfs-auto-snapshot](/posts/schedule-zfs-snapshots-using-zfs-auto-snapshot/).
+Run `zfs list -t snapshot` after a while to make sure the snapshots begin to appear on the system.
+
+{{< highlight txt >}}
+# zfs list -t snapshot
+NAME                                                         USED  AVAIL  REFER  MOUNTPOINT
+zroot@zfs-auto-snap_monthly-2020-06-01-00h28                    0      -    88K  -
+zroot@zfs-auto-snap_weekly-2020-06-07-00h14                     0      -    88K  -
+zroot@zfs-auto-snap_daily-2020-06-11-00h07                      0      -    88K  -
+[...]
+{{< /highlight >}}
+
+Create a new *backup* user on the **bsdclient** machine that will be used for `ssh` logins.
+Use `zfs allow` to grant the *backup* user the ability to send zfs data to the backup server.
+
+{{< highlight txt >}}
+# pw useradd -n backup -m -s /bin/sh
+
+# passwd backup
+Changing local password for backup
+New Password:
+Retype New Password:
+
+# zfs allow -u backup send zroot
+
+# zfs allow zroot
+---- Permissions on zroot --------------------------------------------
+Local+Descendent permissions:
+        user backup send
+{{< /highlight >}}
+
+Set `PasswordAuthentication yes` inside `/etc/ssh/sshd_config` and restart `sshd` to allow the backup server to log into **bsdclient** using a password.
+
+Log out of the **bsdclient** machine.
+
+{{< highlight txt >}}
+# grep PasswordAuth /etc/ssh/sshd_config
+PasswordAuthentication yes
+[...]
+
+# service sshd restart
+[...]
+
+# exit
+exit
+$ exit
+Connection to 192.168.1.108 closed.
+{{< /highlight >}}
+
+Over on the backup server, create a new dataset named after the client machine and transfer its ownership to the *backup* user.
+
+{{< highlight txt >}}
+# zfs create backup/bsdclient
+
+# zfs list
+NAME                 USED  AVAIL  REFER  MOUNTPOINT
+backup              2.02M  3.51T    88K  /backup
+backup/bsdclient      88K  3.51T    88K  /backup/bsdclient
+backup/desktop        88K  3.51T    88K  /backup/desktop
+backup/laptop         88K  3.51T    88K  /backup/laptop
+[...]
+
+# chown -R backup:backup /backup/bsdclient
+
+# ls -alg /backup
+[...]
+drwxr-xr-x   2 backup   backup    2 Jun  9 23:51 bsdclient
+drwxr-xr-x   2 desktop  backup    2 Jun  9 23:18 desktop
+drwxr-xr-x   2 laptop   backup    2 Jun  9 23:18 laptop
+{{< /highlight >}}
+
+Log into the **bsdclient** machine once from the root account of the backup server to make sure it gets added to the root's `known_hosts` file.
+
+{{< highlight txt >}}
+# ssh backup@192.168.1.108
+The authenticity of host '192.168.1.108 (192.168.1.108)' can't be established.
+ECDSA key fingerprint is SHA256:8zMgBz/uX1pu5Dmf5nmtKLtNB9f6JF5uuJPKXpU8aGw.
+No matching host key fingerprint found in DNS.
+Are you sure you want to continue connecting (yes/no)? yes
+Warning: Permanently added '192.168.1.108' (ECDSA) to the list of known hosts.
+Password for backup@bsdclient:
+FreeBSD 12.1-RELEASE r354233 GENERIC
+
+Welcome to FreeBSD!
+[...]
+
+$ exit
+Connection to 192.168.1.108 closed.
+{{< /highlight >}}
+
+Switch to the *backup* user and generate *ssh keys* using `ssh-keygen`.
+Accept the default options and **leave the passphrase empty** so that the backup script will be able to decrypt the private key without a password.
+Finally, copy the *public* ssh key to the client using `ssh-copy-id`.
+
+After this, it should be possible to `ssh` from the *backup* server to the **bsdclient** machine as the *backup* user without entering a password.
+
+{{< highlight txt >}}
+# su backup
+
+$ ssh-keygen
+Generating public/private rsa key pair.
+Enter file in which to save the key (/home/backup/.ssh/id_rsa):
+Created directory '/home/backup/.ssh'.
+Enter passphrase (empty for no passphrase):
+Enter same passphrase again:
+Your identification has been saved in /home/backup/.ssh/id_rsa.
+Your public key has been saved in /home/backup/.ssh/id_rsa.pub.
+[...]
+
+$ ssh-copy-id -i ~/.ssh/id_rsa.pub backup@192.168.1.108
+The authenticity of host '192.168.1.108 (192.168.1.108)' can't be established.
+ECDSA key fingerprint is SHA256:8zMgBz/uX1pu5Dmf5nmtKLtNB9f6JF5uuJPKXpU8aGw.
+No matching host key fingerprint found in DNS.
+Are you sure you want to continue connecting (yes/no)? yes
+Warning: Permanently added '192.168.1.108' (ECDSA) to the list of known hosts.
+Password for backup@bsdclient:
+
+$ ssh backup@192.168.1.108
+Last login: Tue Jun 23 21:59:38 2020 from backup.ccammack.com
+FreeBSD 12.1-RELEASE r354233 GENERIC
+
+Welcome to FreeBSD!
+[...]
+
+$ exit
+Connection to 192.168.1.108 closed.
+{{< /highlight >}}
+
+Finally, add code the to script's *backup* function to call `zxfer` again, this time in *pull* mode, to back up the *bsdclient* machine.
+Add new `bsdclient_` variables to keep track of attempts and successes and report those results in the log.
+
+Display a *green* flash to indicate success if each client is backed up successfully at least once during the daily cycle.
+
+{{< highlight txt >}}
+backup() {
+  # track backup attempts and successes
+  self_tries=0; self_successes=0
+  bsdclient_tries=0; bsdclient_successes=0
+
+  [...]
+
+	# back up bsdclient
+    bsdclient_tries=$((bsdclient_tries+1))
+    if run /usr/local/sbin/zxfer -dFkPv -g 376 \
+      -I com.sun:auto-snapshot \
+	  -O 'backup@192.168.1.108 -i /usr/home/backup/.ssh/id_rsa' \
+	  -R zroot backup/bsdclient
+	then
+      bsdclient_successes=$((bsdclient_successes+1))
+	fi
+
+    # sleep 15 minutes between backup cycles
+    sleep 900
+  done
+
+  # report backup results
+  log "$(hostname -s) backed up ${self_successes}/${self_tries} attempts"
+  log "bsdclient backed up ${bsdclient_successes}/${bsdclient_tries} attempts"
+  if [ $self_successes -gt 0 ] && [ $bsdclient_successes -gt 0 ]; then
+    res_backup="${GREEN}"
+  fi
 
   return 0
 }
@@ -810,94 +1115,186 @@ backup() {
 
 ##### Cancel Backup If the Drive Is Too Full
 
-Use `zpool list` to check the used space on the backup drive and cancel the backup step if it's over 80%.
-If the drive runs low on space, the blink(1) will flash *orange* for the backup step in the final results.
+Use `zpool list` to check the used space on the drive and cancel the backup immediately if it's over 80% full.
+If the drive runs low on space, the blink(1) will flash *magenta* for the backup step in the final results.
 
 {{< highlight txt >}}
 backup() {
-  # abort if the backup drive is too full (capacity: 0%-100%)
-  [ "$(zpool list -H -o capacity backup | sed -r 's/%//g')" -gt 80 ] &&
-    log "backup disk is low on space" && 
-    printf %s $ORANGE && return 1
-  
+  # abort if the backup drive is over 80% full
+  if [ "$(zpool list -H -o capacity backup | sed -r 's/%//g')" -gt 80 ]; then
+    log "backup disk is low on space"
+    res_backup="${MAGENTA}"
+	return 1
+  fi
+
   # track backup attempts and successes
-  self_try=0 ; self_win=0
-  
+  self_tries=0; self_successes=0
+  bsdclient_tries=0; bsdclient_successes=0
+
   [...]
-}
 {{< /highlight >}}
 
 ---
 
 ##### Scrub for ZFS Errors
 
-To scrub the backup drive for ZFS errors, add two new helpers and call them from the `backup` function.
-In this example, the drive inserted on Saturday will be scrubbed, so cycling through a small number of drives (other than 7) will cause each one to scrub once every few weeks.
+To add a new step to scrub the backup drives for ZFS errors, add two new helpers, call them from the `backup` function
+and add a new `res_scrub` variable to display the results on the blink(1).
 
-The `zfs scrub` will flash *white* on the blink(1) while running and either *green* for success or *orange* for failure in the
-final results in between the existing flashes for the *backup* and *terminate* steps.
+As written, the drive inserted on Saturday will be scrubbed, so cycling through a small number of drives will cause each one to scrub once every few weeks.
+
+Because this adds a new step, the final output from the blink(1) will consist of four flashes rather than three.
+The `scrub` process will flash *white* on the blink(1) while waiting to finish and either *green* for success or *magenta* for failure as the third flash in the final results.
+
+On most days, when the scrub step does not run at all, the blink(1) will flash *green*-*green*-*off*-*green*.
+On days when the scrub runs, the blink(1) will flash *green*-*green*-*green*-*green*.
 
 {{< highlight txt >}}
+[...]
+
+# blink(1) status results for each step
+res_initialize="${RED}"
+res_backup="${RED}"
+res_scrub="${OFF}"
+res_terminate="${RED}"
+res_status="\${res_initialize}\${res_backup}\${res_scrub}\${res_terminate}"
+
+[...]
+
 scrub_start() {
-  # run zfs scrub on Saturdays
-  [ "$(date +"%u")" -eq 6 ] ; scrub=$?
-  [ "$scrub" -eq 1 ] &&
-    log "starting zfs scrub backup" &&
-    run zpool scrub backup
-  return $scrub
+  # run zpool scrub on Saturdays
+  if [ "$(date +"%u")" -eq 6 ]; then
+    log "starting zpool scrub backup"
+	run zpool scrub backup
+    return 0
+  fi
+  return 1
 }
 
 scrub_wait() {
-  blink_play_pattern "$WHITE"
-  while zpool status backup |
-      grep -E " scan: +scrub in progress since " >/dev/null 2>&1; do
+  blink_play_pattern "${WHITE}"
+  while zpool status backup | \
+      grep -E " scan: +scrub in progress since " >/dev/null 2>&1
+  do
+    log "waiting for zpool scrub backup"
     sleep 60
   done
+  log "finished zpool scrub backup"
   blink_clear_pattern
-  results=$(zpool status backup |
-            sed -n 's/^.*scan: scrub repaired *//p' |
-            sed -n 's/ *in .*with */;/p' |
+  results=$(zpool status backup | \
+            sed -n 's/^.*scan: scrub repaired *//p' | \
+            sed -n 's/ *in .*with */;/p' | \
             sed -n 's/ *errors on .*$//p')
   repaired=$(echo "$results" | cut -d ';' -f1)
   errors=$(echo "$results" | cut -d ';' -f2)
-  [ "$repaired" -eq 0 ] && [ "$errors" -eq 0 ] &&
-    printf %s $GREEN && return 0
+  if [ "$repaired" -eq 0 ] && [ "$errors" -eq 0 ]; then
+    res_scrub="${GREEN}"
+	return 0
+  fi
 
-  log "zfs scrub repaired: ${repaired} with errors: ${errors}" &&
-  printf %s $ORANGE && return 0
+  log "zfs scrub repaired: ${repaired} with errors: ${errors}"
+  res_scrub="${MAGENTA}"
+  return 1
 }
 
 backup() {
-  # abort if the backup drive is too full (capacity: 0%-100%)
-  [ "$(zpool list -H -o capacity backup | sed -r 's/%//g')" -gt 80 ] &&
-    log "backup disk is low on space" && 
-    printf %s $ORANGE && return 1
+  # abort if the backup drive is over 80% full
+  [...]
 
-  # start zfs scrub
-  scrub_start ; scrub=$?
+  # start zpool scrub
+  scrub_start; scrub=$?
 
   # track backup attempts and successes
-  self_try=0 ; self_win=0
+  [...]
 
   [...]
- 
+
   # wait for zfs scrub to finish
-  [ "$scrub" -eq 0 ] && scrub_wait || printf %s $GREEN
+  [ "$scrub" -eq 0 ] && scrub_wait
 
   return 0
 }
+
+[...]
 {{< /highlight >}}
 
 ---
 
 ##### blink(1) Output Summary
 
-During the run, the blink(1) will flash *blue* while running and *white* while scrubbing.
-The final results will generally display four flashes, one each for *initialize*, *backup*, *scrub* and *terminate*,
+During the run, the blink(1) will flash *blue* while backing up and *white* while scrubbing.
+The final results will display up to four flashes, one each for *initialize*, *backup*, *scrub* and *terminate*,
 where *green* indicates success and *red* indicates failure.
-Fewer than four lights will appear on runs that abort early due to errors.
-*Orange* flashes indicate a disk-related failure:
-low disk space will abort the *backup* step and flash *orange* in its place;
-a failed ZFS scrub will flash *orange* for the *scrub* step and *green* otherwise.
+The *scrub* status flash will only appear on days after the *scrub* step runs, so it will appear on Sundays in the current script.
+*Magenta* flashes indicate a disk-related failure:
+low disk space will abort the *backup* step and flash *magenta* in its place;
+a failed scrub will flash *magenta* for the *scrub* step and *green* otherwise.
 
+On most days, when the process finishes without error and *scrub* does not run, the blink(1) will flash *green-green-off-green*.
+When this sequence appears, remove the old drive and insert the next one to restart the backup process for the next day.
 
+---
+
+##### Adding a New Backup Drive to the Rotation
+
+To add a new removable drive to the backup rotation, temporarily disable the backup script by adding an `exit` at the top.
+
+{{< highlight txt >}}
+# head /usr/local/sbin/backup.sh
+#!/bin/sh
+exit
+[...]
+{{< /highlight >}}
+
+Then, insert the new drive and create the partition, GELI container and zpool.
+
+{{< highlight txt >}}
+# dmesg
+[...]
+ada1: 3815447MB (7814037168 512 byte sectors)
+
+# gpart destroy -F ada1
+ada1 destroyed
+
+# gpart create -s gpt ada1
+ada1 created
+
+# gpart add -a 1m -l backup -t freebsd-zfs "ada1"
+ada1p1 added
+
+# geli init -e AES-XTS -l 256 -s 4096 "/dev/gpt/backup"
+Enter new passphrase:
+Reenter new passphrase:
+[...]
+
+# geli attach /dev/gpt/backup
+Enter passphrase:
+
+# zpool create backup gpt/backup.eli
+
+{{< /highlight >}}
+
+Next, create the datasets required for each backup client.
+
+{{< highlight txt >}}
+# zfs create -o casesensitivity=mixed backup/desktop
+# chown -R desktop:backup /backup/desktop
+
+# zfs create backup/laptop
+# chown -R laptop:backup /backup/laptop
+
+# zfs create backup/`hostname -s`
+# chown -R backup:backup /backup/`hostname -s`
+
+# zfs create backup/bsdclient
+# chown -R backup:backup /backup/bsdclient
+{{< /highlight >}}
+
+Finally, dismount and eject to put the new drive into service.
+
+{{< highlight txt >}}
+# zpool export backup
+# geli detach gpt/backup.eli
+{{< /highlight >}}
+
+Remove the temporary `exit` from the backup script when finished.
