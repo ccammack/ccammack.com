@@ -541,10 +541,10 @@ through each of the drives during configuration to create them.
 
 The rest of this example assumes that I am setting up Samba access for a desktop client named **desktop** which is running Windows 8.
 
-First, create a new user account called **desktop** and add it to the *backup* group.
+First, create a new user account called **desktop**.
 
 {{< highlight txt >}}
-# pw useradd -n desktop -m -s /bin/sh -G backup
+# pw useradd -n desktop -m -s /bin/sh
 
 # passwd desktop
 Changing local password for desktop
@@ -568,11 +568,11 @@ backup                        2.08M  3.51T    88K  /backup
 backup/desktop                  88K  3.51T    88K  /backup/desktop
 [...]
 
-# chown -R desktop:backup /backup/desktop
+# chown -R desktop:desktop /backup/desktop
 
 # ls -alg /backup
 [...]
-drwxr-xr-x   2 desktop  backup   2 Sep  6 00:55 desktop
+drwxr-xr-x   2 desktop  desktop   2 Sep  6 00:55 desktop
 
 # pkill -f backup.sh; pkill blink1-tool
 # zpool export backup; geli detach gpt/backup.eli
@@ -647,6 +647,7 @@ in the file explorer as something like **\\\192.168.1.112** rather than **\\\BAC
 {{< figure src="testing-samba-using-ip.png" alt="Testing Samba Using IP">}}
 
 The network share will remain available until after 3AM the following day so the client can save files to it, or you can cancel and dismount manually if needed.
+The drive will fail to dismount if a client is currently using the Samba share, so close all file explorer windows if you need to manually dismount the drive.
 
 {{< highlight txt >}}
 # pkill -f backup.sh; pkill blink1-tool
