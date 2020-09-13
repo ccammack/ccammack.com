@@ -1279,7 +1279,7 @@ Next, create the datasets required for each backup client.
 
 {{< highlight txt >}}
 # zfs create -o casesensitivity=mixed backup/desktop
-# chown -R desktop:backup /backup/desktop
+# chown -R desktop:desktop /backup/desktop
 
 # zfs create backup/laptop
 # chown -R laptop:backup /backup/laptop
