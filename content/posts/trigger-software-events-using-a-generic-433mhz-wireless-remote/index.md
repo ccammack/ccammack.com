@@ -194,7 +194,7 @@ debounce=750
 prevLine=""
 rtl_433 2>/dev/null | while read line; do
   elapsed=$(( $(date +%s%3N) - stopWatch ))
-  if [ "$elapsed" -gt "$debounce" ] &&
+  if [ "$elapsed" -gt "$debounce" ] && \
      [ "$prevLine" = "House Code: 21845" ]; then
     case "$line" in
       "Command   : 12")  echo "Button A"
