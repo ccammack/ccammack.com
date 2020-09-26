@@ -453,13 +453,14 @@ backup() {
 }
 
 terminate() {
-  while run zpool list backup; do
-    run zpool export backup && break
-    sleep 60
+  log "dismounting backup drive"
+  while zpool list backup; do
+    zpool export backup && break
+    sleep 1
   done
-  while run geli status gpt/backup.eli; do
-    run geli detach gpt/backup.eli && break
-    sleep 60
+  while geli status gpt/backup.eli; do
+    geli detach gpt/backup.eli && break
+    sleep 1
   done
 
   res_terminate="${GREEN}"
