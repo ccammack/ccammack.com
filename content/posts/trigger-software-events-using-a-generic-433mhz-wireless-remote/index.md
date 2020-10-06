@@ -238,7 +238,7 @@ One good option is the **DirecTV RC66RX Remote Control**, which can be had for u
 
 To [enable RF mode](https://github.com/merbanan/rtl_433_tests/tree/master/tests/directv#description) on the remote:
 
-1. Move the input select slider all the way to the left
+1. Move the device select slider all the way to the left
 1. Press and hold `Mute` and `SELECT` until the LED flashes twice
 1. Enter `9` `6` `1` and the LED will flash twice
 1. Press `CHAN|PAGE Up` to enter RF mode and the LED will flash twice
