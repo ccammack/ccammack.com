@@ -416,7 +416,20 @@ log() {
 
 run() {
   # redirect stdout and stderr from command to log and return $?
-  output=$("$@" 2>&1); error=$?; log "$output"; return $error
+  tempfile="$(mktemp /tmp/backup.XXXXXX)"
+  exec 3> "$tempfile"
+  exec 4< "$tempfile"
+  rm "$tempfile"
+
+  "$@" >&3 2>&1
+  error=$?
+
+  log "$* => $error"
+  logger <&4 >/dev/null 2>&1
+
+  exec 4<&-
+  exec 3<&-
+  return $error
 }
 
 initialize() {
@@ -528,6 +541,26 @@ use `zpool export` and `geli detach` to completely dismount the drive in FreeBSD
 # zpool export backup; geli detach gpt/backup.eli
 {{< /highlight >}}
 
+For convenience, implement a `--cancel` option by adding these commands as a new *if* block near the end of the script.
+You can then cancel a running backup using the command `backup.sh --cancel`.
+
+{{< highlight txt >}}
+# ee /usr/local/sbin/backup.sh
+[...]
+
+# cat /usr/local/sbin/backup.sh
+[...]
+
+if [ "$1" = "--cancel" ]; then
+  # cancel running script
+  pkill -f backup.sh; pkill blink1-tool
+  zpool export backup; geli detach gpt/backup.eli
+elif [ "$(pgrep -fl "$(basename "$0")" | wc -l)" -gt 0 ]; then
+  # abort if the script is already running
+  instances="$(pgrep -fl "$(basename "$0")")"
+[...]
+{{< /highlight >}}
+
 ---
 
 ##### Configure Samba Access
@@ -556,7 +589,7 @@ Retype New Password:
 Next, insert the first removable drive into the server, allow it to mount until the blink(1) begins flashing *blue*
 and use `zfs create` to create a new dataset, named after the **desktop** client, where it can store its backup files.
 
-After creating the dataset and setting its permissions, use `pkill` to cancel the script and then `export` and `detach` the drive before ejecting it from the backup server.
+After creating the dataset and setting its permissions, use `backup.sh --cancel` to cancel the script and dismount the drive before ejecting it from the backup server.
 
 Repeat for the other removable drives.
 
@@ -575,8 +608,7 @@ backup/desktop                  88K  3.51T    88K  /backup/desktop
 [...]
 drwxr-xr-x   2 desktop  desktop   2 Sep  6 00:55 desktop
 
-# pkill -f backup.sh; pkill blink1-tool
-# zpool export backup; geli detach gpt/backup.eli
+# backup.sh --cancel
 {{< /highlight >}}
 
 After the destination datasets have been created on the removable backup drives, find and install the latest version of Samba.
@@ -651,9 +683,7 @@ The network share will remain available until after 3AM the following day so the
 The drive will fail to dismount if a client is currently using the Samba share, so close all file explorer windows if you need to manually dismount the drive.
 
 {{< highlight txt >}}
-# pkill -f backup.sh; pkill blink1-tool
-
-# zpool export backup; geli detach gpt/backup.eli
+# backup.sh --cancel
 {{< /highlight >}}
 
 ---
@@ -1297,6 +1327,44 @@ Finally, dismount and eject to put the new drive into service.
 {{< highlight txt >}}
 # zpool export backup
 # geli detach gpt/backup.eli
+{{< /highlight >}}
+
+For convenience, implement an `--init` option by adding these commands as a new *elif* block at the bottom of the script.
+You can then initialize a brand new drive using the command `backup.sh --init` and entering the encryption password.
+
+{{< highlight txt >}}
+# ee /usr/local/sbin/backup.sh
+[...]
+
+# cat /usr/local/sbin/backup.sh
+[...]
+elif [ "$1" = "--on-eject" ]; then
+  # process on-eject
+  blink_clear_pattern
+elif [ "$1" = "--init" ]; then
+  # process init
+  gpart destroy -F ada1
+  gpart create -s gpt ada1
+  gpart add -a 1m -l backup -t freebsd-zfs "ada1"
+  geli init -e AES-XTS -l 256 -s 4096 "/dev/gpt/backup"
+  geli attach /dev/gpt/backup
+  zpool create backup gpt/backup.eli
+
+  zfs create -o casesensitivity=mixed backup/desktop
+  chown -R desktop:desktop /backup/desktop
+
+  zfs create backup/laptop
+  chown -R laptop:backup /backup/laptop
+
+  zfs create backup/`hostname -s`
+  chown -R backup:backup /backup/`hostname -s`
+
+  zfs create backup/bsdclient
+  chown -R backup:backup /backup/bsdclient
+
+  zpool export backup
+  geli detach gpt/backup.eli
+fi
 {{< /highlight >}}
 
 Remove the temporary `exit` from the backup script when finished.
