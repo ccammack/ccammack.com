@@ -536,7 +536,7 @@ Cancel the running backup script and the `blink1-tool` using `pkill`, then
 use `zpool export` and `geli detach` to completely dismount the drive in FreeBSD before physically ejecting it from the case.
 
 {{< highlight txt >}}
-# pkill -f backup.sh; pkill blink1-tool
+# pkill -KILL -f backup.sh; pkill blink1-tool
 
 # zpool export backup; geli detach gpt/backup.eli
 {{< /highlight >}}
@@ -553,7 +553,7 @@ You can then cancel a running backup using the command `backup.sh --cancel`.
 
 if [ "$1" = "--cancel" ]; then
   # cancel running script
-  pkill -f backup.sh; pkill blink1-tool
+  pkill -KILL -f backup.sh; pkill blink1-tool
   zpool export backup; geli detach gpt/backup.eli
 elif [ "$(pgrep -fl "$(basename "$0")" | wc -l)" -gt 0 ]; then
   # abort if the script is already running
