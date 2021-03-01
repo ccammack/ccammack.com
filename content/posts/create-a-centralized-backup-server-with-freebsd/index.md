@@ -1356,8 +1356,8 @@ elif [ "$1" = "--init" ]; then
   zfs create backup/laptop
   chown -R laptop:backup /backup/laptop
 
-  zfs create backup/`hostname -s`
-  chown -R backup:backup /backup/`hostname -s`
+  zfs create backup/"$(hostname -s)"
+  chown -R backup:backup /backup/"$(hostname -s)"
 
   zfs create backup/bsdclient
   chown -R backup:backup /backup/bsdclient
