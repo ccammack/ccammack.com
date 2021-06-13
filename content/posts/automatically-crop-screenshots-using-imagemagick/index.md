@@ -75,7 +75,7 @@ Once the procedure works properly, wrap the command in a batch(+powershell) scri
 #>
 foreach ($a in $args) {
 	$output = ( (Get-Item $a).DirectoryName + "\" + (Get-Item $a).Basename + ".cropped" + (Get-Item $a).Extension )
-	& magick convert $a -gravity northwest -chop 4%x0% -gravity southeast -chop 37%x4% -trim -shave 4x4 $output
+	& magick convert $a -gravity northwest -chop 4%x0% -gravity southeast -chop 37%x4% -trim -shave 4x4 +repage $output
 }
 {{< /highlight >}}
 
