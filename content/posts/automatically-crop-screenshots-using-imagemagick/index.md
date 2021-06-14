@@ -14,6 +14,17 @@ In my own case, the desktop normally has a column of icons down the left side an
 
 {{< figure src="input.png" alt="Full Page Screenshot">}}
 
+{{< highlight txt >}}
+C:\Users\ccammack\Desktop
+λ magick --version
+Version: ImageMagick 7.0.10-29 Q16 x64 2020-09-05 http://www.imagemagick.org
+Copyright: Copyright (C) 1999-2018 ImageMagick Studio LLC
+License: http://www.imagemagick.org/script/license.php
+Visual C++: 192729111
+Features: Cipher DPC HDRI Modules OpenCL OpenMP(2.0)
+Delegates (built-in): bzlib cairo flif freetype gslib heic jng jp2 jpeg lcms lqr lzma openexr pangocairo png ps raw rsvg tiff webp xml zlib
+{{< /highlight >}}
+
 ---
 
 To figure out the right amount to crop from each side for this desktop layout, run some tests using **magick convert** on the full screen *input* image and specify the **show:** parameter to immediately view the results of the each command without specifying an output file.
