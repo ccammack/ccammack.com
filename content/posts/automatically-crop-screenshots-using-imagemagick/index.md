@@ -1,14 +1,14 @@
 ---
-title: "Automatically Crop Screenshots Using Imagemagick"
+title: "Automatically Crop Screenshots Using ImageMagick"
 date: 2020-10-17T09:49:39-07:00
-tags: ["Imagemagick", "Windows"]
+tags: ["ImageMagick", "Windows"]
 ---
 
 I don't like editing images by hand, but occasionally find myself needing to cut down a full page screenshot to extract something of interest like a dialog box with an open menu.
 
 <!--more-->
 
-As it turns out, as long as the desktop follows a consistent layout, it's easy to write a reusable [Imagemagick](https://imagemagick.org/index.php) script to automatically crop full page images down to size.
+As it turns out, as long as the desktop follows a consistent layout, it's easy to write a reusable [ImageMagick](https://imagemagick.org/index.php) script to automatically crop full page images down to size.
 
 In my own case, the desktop normally has a column of icons down the left side and an open console window on the right. If I need to capture an object, I move it to the middle of the screen before taking the screenshot, leaving some empty space around the outside edges.
 
