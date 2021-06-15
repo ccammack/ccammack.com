@@ -8,11 +8,12 @@ I don't like editing images by hand, but occasionally find myself needing to cut
 
 <!--more-->
 
-As it turns out, as long as the desktop follows a consistent layout, it's easy to write a reusable [ImageMagick](https://imagemagick.org/index.php) script to automatically crop full page images down to size.
+As it turns out, as long as the desktop uses a consistent layout, it's easy to write a reusable [ImageMagick](https://imagemagick.org/index.php) script to automatically crop full screen images down to size.
 
-In my own case, the desktop normally has a column of icons down the left side and an open console window on the right. If I need to capture an object, I move it to the middle of the screen before taking the screenshot, leaving some empty space around the outside edges.
+In my own case, the desktop normally has a column of icons down the left side and an open console window on the right.
+If I need to capture an object, I move it to the middle of the screen before taking the screenshot, leaving some empty space around the outside edges.
 
-{{< figure src="input.png" alt="Full Page Screenshot">}}
+{{< figure src="input.png" alt="Full Page Screenshot of LibreOffice Window">}}
 
 {{< highlight txt >}}
 C:\Users\ccammack\Desktop
@@ -27,9 +28,9 @@ Delegates (built-in): bzlib cairo flif freetype gslib heic jng jp2 jpeg lcms lqr
 
 ---
 
-To figure out the right amount to crop from each side for this desktop layout, run some tests using **magick convert** on the full screen *input* image and specify the **show:** parameter to immediately view the results of the each command without specifying an output file.
+To figure out the right amount to crop from each side for this desktop layout, run some tests using `magick convert` on the full screen *input* image and specify the `show:` parameter to immediately view the results of each command in the ImageMagick viewer.
 
-To remove the *left* side of the image, set the reference origin to the *upper-left* corner using **-gravity northwest** and then specify **-chop 4%x0%** to remove **4%** from the left and **0%** from the top. Experiment with the chop percentages to find the right amount for the desktop layout.
+To remove the *left* side of the image, set the reference origin to the *upper-left* corner using `-gravity northwest` and then specify `-chop 4%x0%` to remove *4%* from the left and *0%* from the top. Experiment with the chop percentages to find the right amount for the desktop layout.
 
 {{< highlight txt >}}
 C:\Users\ccammack\Desktop
@@ -40,7 +41,7 @@ C:\Users\ccammack\Desktop
 
 ---
 
-Similarly, to remove the *bottom* and *right* sides of the image, set the reference origin to the *bottom-right* corner using **-gravity southeast** and then specify **-chop 37%x4%** to remove an additional **37%** from the right and **4%** from the bottom.
+Similarly, to remove the *bottom* and *right* sides of the image, set the reference origin to the *bottom-right* corner using `-gravity southeast` and then specify `-chop 37%x4%` to remove an additional *37%* from the right and *4%* from the bottom.
 
 {{< highlight txt >}}
 C:\Users\ccammack\Desktop
@@ -51,7 +52,7 @@ C:\Users\ccammack\Desktop
 
 ---
 
-This leaves a solid blue background around the ouside of the image, which can be removed by adding the **-trim** parameter to the end of the command.
+This leaves a solid blue border from the desktop background around the edges of the image, which can be automatically removed by adding the `-trim` parameter to the end of the command.
 
 {{< highlight txt >}}
 C:\Users\ccammack\Desktop
@@ -62,7 +63,7 @@ C:\Users\ccammack\Desktop
 
 ---
 
-In my testing, the **-trim** parameter left a 4-pixel blue border around the image, so I removed it by adding **-shave 4x4** to shave off the remaining 4 pixels from each edge.
+In my testing, the `-trim` parameter left a four pixel blue border around the image, so I removed it by adding `-shave 4x4` to shave off the four remaining pixels from the horizontal and vertical edges, giving the final result as shown.
 
 {{< highlight txt >}}
 C:\Users\ccammack\Desktop
@@ -73,7 +74,7 @@ C:\Users\ccammack\Desktop
 
 ---
 
-Once the procedure works properly, wrap the command in a batch(+powershell) script so it can process multiple images with one call and append the word *cropped* to each output filename.
+Once the procedure works properly, wrap the command in a [batch(+powershell)](https://stackoverflow.com/a/49122891) script so it can process multiple images with one call and can automatically generate the output filenames for the resulting files by appending the word *cropped* to each input filename.
 
 {{< highlight txt >}}
 <#  :cmd header for PowerShell script
@@ -90,4 +91,4 @@ foreach ($a in $args) {
 }
 {{< /highlight >}}
 
-This batch file works on the command line and can also serve as a drop target so files can be automatically cropped by dragging and dropping them onto the batch file.
+The resulting batch file works on the command line and can also serve as a drop target so images can be automatically cropped by dragging and dropping them onto the batch file.
