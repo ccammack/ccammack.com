@@ -35,6 +35,7 @@ Password:
 # bc
 3.62 * 0.05 * 1024
 184.32
+^C
 Broken pipe
 
 # zfs create -o refreservation=185G backup/reserved
