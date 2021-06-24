@@ -78,6 +78,7 @@ Once the procedure works properly, wrap the command in a [batch(+powershell)](ht
 
 {{< highlight txt >}}
 <#  :cmd header for PowerShell script
+@	rem https://stackoverflow.com/a/49122891
 @   set dir=%~dp0
 @   set ps1="%TMP%\%~n0-%RANDOM%-%RANDOM%-%RANDOM%-%RANDOM%.ps1"
 @   copy /b /y "%~f0" %ps1% >nul
@@ -85,6 +86,7 @@ Once the procedure works properly, wrap the command in a [batch(+powershell)](ht
 @   del /f %ps1%
 @   goto :eof
 #>
+
 foreach ($a in $args) {
 	$output = ( (Get-Item $a).DirectoryName + "\" + (Get-Item $a).Basename + ".cropped" + (Get-Item $a).Extension )
 	& magick convert $a -gravity northwest -chop 4%x0% -gravity southeast -chop 37%x4% -trim -shave 4x4 +repage $output
