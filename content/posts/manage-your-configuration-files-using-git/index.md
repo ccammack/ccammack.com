@@ -164,4 +164,11 @@ If the local changes are not important, simply overwrite them with `checkout -f`
 
 {{< highlight txt >}}
 ccammack@ubuntu:~$ git dot-all checkout -f
+
+ccammack@ubuntu:~$ git dot-all log
+commit a0508e6d89880d744ec7122cecb1da27ddc62488 (HEAD -> master)
+Author: ccammack <ccammack@example.com>
+Date:   Sun Jun 20 20:07:47 2021 -0700
+
+    Add emacs configuration.
 {{< /highlight >}}
