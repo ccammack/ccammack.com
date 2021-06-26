@@ -30,7 +30,7 @@ Delegates (built-in): bzlib cairo flif freetype gslib heic jng jp2 jpeg lcms lqr
 
 To figure out the right amount to crop from each side for this desktop layout, run some tests using `magick convert` on the full screen *input* image and specify the `show:` parameter to immediately view the results of each command in the ImageMagick viewer.
 
-To remove the *left* side of the image, set the reference origin to the *upper-left* corner using `-gravity northwest` and then specify `-chop 4%x0%` to remove *4%* from the left and *0%* from the top. Experiment with the chop percentages to find the right amount for the desktop layout.
+For example, to remove the *left* side of the image, set the reference origin to the *upper-left* corner using `-gravity northwest` and then specify `-chop 4%x0%` to remove *4%* from the left and *0%* from the top. Experiment with the chop percentages to find the right amount for the desktop layout.
 
 {{< highlight txt >}}
 C:\Users\ccammack\Desktop
@@ -52,7 +52,7 @@ C:\Users\ccammack\Desktop
 
 ---
 
-This leaves a solid blue border from the desktop background around the edges of the image, which can be automatically removed by adding the `-trim` parameter to the end of the command.
+This leaves the solid blue desktop background around the outside of the image, which can be automatically removed by adding the `-trim` parameter to the end of the command.
 
 {{< highlight txt >}}
 C:\Users\ccammack\Desktop
