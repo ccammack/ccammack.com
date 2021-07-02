@@ -184,7 +184,7 @@ Use `zpool list` to compare the *ALLOC* sizes of the source and destination pool
 {{< highlight txt >}}
 # zfs list -H | cut -f1 | awk '/[[:space:]]/{printf("Error! Dataset name contains spaces: %s\n",$0)}'
 
-# zxfer -dFkPv -g 376 -I com.sun:auto-snapshot -R zroot backup/`hostname -s`
+# zxfer -dFkPv -I com.sun:auto-snapshot -R zroot backup/`hostname -s`
 [...]
 
 # zpool scrub backup
@@ -214,13 +214,13 @@ If this happens, zxfer will give a warning and abort the backup.
 To continue, simply restart the backup as many times as needed to catch up with the current set of snapshots.
 After the initial backup completes, future runs will finish more quickly and this warning will be less likely to occcur.
 {{< highlight txt >}}
-# zxfer -dFkPv -g 376 -I com.sun:auto-snapshot -R zroot backup/`hostname -s`
+# zxfer -dFkPv -I com.sun:auto-snapshot -R zroot backup/`hostname -s`
 [...]
 WARNING: could not send zroot/iocage/download/12.1-RELEASE@zfs-auto-snap_frequent-2020-04-07-00h30: does not exist
 cannot receive: failed to read from stream
 Error when zfs send/receiving.
 
-# zxfer -dFkPv -g 376 -I com.sun:auto-snapshot -R zroot backup/`hostname -s`
+# zxfer -dFkPv -I com.sun:auto-snapshot -R zroot backup/`hostname -s`
 [...]
 Writing backup info to location /backup/server/.zxfer_backup_info.zroot
 {{< /highlight >}}
@@ -280,7 +280,7 @@ Only in /usr/home/ccammack: hello
 
 # sleep 900
 
-# zxfer -dFkPv -g 376 -I com.sun:auto-snapshot -R zroot backup/`hostname -s`
+# zxfer -dFkPv -I com.sun:auto-snapshot -R zroot backup/`hostname -s`
 [...]
 
 # zxfer -deFPv -R backup/`hostname -s`/zroot zroot/tmp

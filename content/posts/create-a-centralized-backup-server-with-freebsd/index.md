@@ -935,7 +935,7 @@ backup() {
 	
 	# back up self
     self_tries=$((self_tries+1))
-    if run /usr/local/sbin/zxfer -dFkPv -g 376 \
+    if run /usr/local/sbin/zxfer -dFkPv \
       -I com.sun:auto-snapshot \
 	  -R zroot backup/"$(hostname -s)"
 	then
@@ -1120,7 +1120,7 @@ backup() {
 
 	# back up bsdclient
     bsdclient_tries=$((bsdclient_tries+1))
-    if run /usr/local/sbin/zxfer -dFkPv -g 376 \
+    if run /usr/local/sbin/zxfer -dFkPv \
       -I com.sun:auto-snapshot \
 	  -O 'backup@192.168.1.108 -i /usr/home/backup/.ssh/id_rsa' \
 	  -R zroot backup/bsdclient

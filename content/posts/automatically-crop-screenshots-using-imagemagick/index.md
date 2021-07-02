@@ -76,7 +76,7 @@ C:\Users\ccammack\Desktop
 
 Once the procedure works properly, wrap the command in a [batch(+powershell)](https://stackoverflow.com/a/49122891) script so it can process multiple images with one call and can automatically generate the output filenames for the resulting files by appending the word *cropped* to each input filename.
 
-{{< highlight txt >}}
+{{< highlight ps1 >}}
 <#  :cmd header for PowerShell script
 @	rem https://stackoverflow.com/a/49122891
 @   set dir=%~dp0
