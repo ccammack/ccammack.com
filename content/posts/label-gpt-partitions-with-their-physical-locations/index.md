@@ -12,7 +12,7 @@ This would obviously simplify things when working with large numbers of drives i
 To do this, first devise a numbering scheme for the physical drive locations in the case.
 For example, my test server contains a stack of 8 drive bays, which I have labeled from 00 at the bottom to 07 at the top.
 
-Next, shut down the server, pull each drive out one at a time and record the serial number from each along with the physical drive bay where it resides.
+Next, shut down the server, pull each drive out one at a time and record the serial number from each one along with the physical drive bay where it resides.
 
 |Drive Bay|HDD Serial Number|
 |---------|-----------------|
@@ -24,7 +24,7 @@ GPT labels are restricted to 15 characters in length, so devise a naming scheme 
 In my case, I'm using the prefix *zfs-* followed by two digits for the bay number and the last 8 characters of the serial number, giving labels such as *zfs-00-V0942547*.
 
 The test machine for this example is a 3-drive ZFS mirror and the system has currently assigned device nodes *ada0*-*ada2* to the drives.
-Use the `diskinfo` or `geom` command to find the serial numbers for each device node and match them up with the serial numbers collected earlier.
+Use the `diskinfo` or `geom` command to find and record the device node that maps to each serial number recorded earlier.
 
 {{< highlight txt >}}
 $ su
@@ -63,9 +63,11 @@ errors: No known data errors
 |02       |9VP9Q4SD         |ada2       |
 
 > In this example, the device node numbers happened to match the drive bay numbers, but this ordering is not guaranteed.
-Hardware faults or swapped cables may cause the device nodes to be numbered in a different order, so it's important to pair up the device nodes with the HDD serial numbers rather than the drive bay numbers.
+Hardware faults or swapped cables may cause the device nodes to be numbered in a different order, so it's important to
+perform a physical examination to map each bay number to its corresponding serial number and then
+separately use `diskinfo` or `geom` to match each device node to its corresponding serial number.
 
-Use `gpart modify` to change the GPT label on the third partition of each drive to include the drive bay id and serial number.
+Use `gpart modify` to change the GPT label on the *ZFS* partition of each drive to include the drive bay id and serial number.
 
 {{< highlight txt >}}
 # gpart show -l

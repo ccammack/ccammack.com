@@ -63,7 +63,7 @@ Untracked files:
 nothing added to commit but untracked files present (use "git add" to track)
 {{< /highlight >}}
 
-Home directories will usually have a lot of files in them, so that command will show all of them.
+Home directories usually have a lot of files in them and the default `status` command will show all of them.
 To fix this, change the `local` configuration for the repo to disable `showUntrackedFiles` and try again.
 
 {{< highlight txt >}}
