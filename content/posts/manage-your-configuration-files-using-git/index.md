@@ -16,7 +16,7 @@ I also have a Windows-only repo (`.dot-win`) and one for configs shared between 
 
 {{< highlight txt >}}
 C:\Users\ccammack
-λ cd %HOME%
+λ cd %USERPROFILE%
 
 C:\Users\ccammack
 λ git init --bare .dot-all
