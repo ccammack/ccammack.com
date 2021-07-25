@@ -150,8 +150,7 @@ Starting smartd.
 Monitor */var/log/messages* regularly to see the results of the SMART analysis.
 
 {{< highlight txt >}}
-# tail /var/log/messages
-[...]
+# grep smartd /var/log/messages
 Mar 28 21:41:48 server smartd[11127]: Device: /dev/ada2, WARNING: A firmware update for this drive may be available,
 Mar 28 21:41:48 server smartd[11127]: see the following Seagate web pages:
 Mar 28 21:41:48 server smartd[11127]: http://knowledge.seagate.com/articles/en_US/FAQ/207931en
