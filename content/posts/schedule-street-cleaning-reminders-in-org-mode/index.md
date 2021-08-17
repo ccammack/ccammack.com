@@ -1,7 +1,7 @@
 ---
 title: "Schedule Street Cleaning Reminders in Org-mode"
 date: 2018-10-27T23:04:21-07:00
-tags: ["Org-mode"]
+tags: ["Emacs", "Org-mode"]
 ---
 
 [comment]: # ( https://stackoverflow.com/questions/53078035/diary-float-query-for-emacs-diary											)
