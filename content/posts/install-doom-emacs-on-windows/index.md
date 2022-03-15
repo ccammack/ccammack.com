@@ -67,23 +67,24 @@ Close the PowerShell console and restart it again using the *Administrator* acco
 
 ##### Install Emacs
 
-In the PowerShell *Administrator* console, use Chocolatey to install the Windows-native [packages](https://community.chocolatey.org/packages) for `git`, `emacs`, `ripgrep` and `fd`.
+In the PowerShell *Administrator* console, use Chocolatey to install the Windows-native [packages](https://community.chocolatey.org/packages) for `git`, `emacs`, `ripgrep`, `llvm` and `fd`.
 I also like to install `hunspell` to get spell-checking support. Use `exit` to close the PowerShell console afterwards.
 
 {{< highlight txt >}}
 Windows PowerShell
 Copyright (C) 2012 Microsoft Corporation. All rights reserved.
 
-PS C:\Windows\system32> choco install git emacs ripgrep fd hunspell.portable -y
+PS C:\Windows\system32> choco install git emacs ripgrep llvm fd hunspell.portable -y
 Chocolatey v0.12.1
 Installing the following packages:
-git;emacs;ripgrep;fd;hunspell.portable
+git;emacs;ripgrep;llvm;fd;hunspell.portable
 [...]
 Installed:
  - hunspell.portable v1.7.0
  - emacs v27.2.0.20210423
  - git.install v2.35.1.2
  - ripgrep v13.0.0.20210621
+ - llvm v13.0.1
  - fd v8.3.2
  - git v2.35.1.2
 [...]
