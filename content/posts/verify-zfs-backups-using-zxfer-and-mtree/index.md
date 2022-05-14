@@ -355,13 +355,13 @@ C:\Users\ccammack
 λ ssh data.ccammack.com
 [...]
 
-$ ssh-keygen -f /tmp/zxfer_key -N ""
+$ ssh-keygen -f /tmp/mtree_key -N ""
 Generating public/private rsa key pair.
-Your identification has been saved in /tmp/zxfer_key.
-Your public key has been saved in /tmp/zxfer_key.pub.
+Your identification has been saved in /tmp/mtree_key.
+Your public key has been saved in /tmp/mtree_key.pub.
 [...]
 
-$ ssh-copy-id -i /tmp/zxfer_key.pub freebsd@192.168.1.137
+$ ssh-copy-id -i /tmp/mtree_key.pub freebsd@192.168.1.137
 [...]
 Password for freebsd@generic:
 
@@ -378,7 +378,7 @@ Change the `sshd` configuration to allow the *root* user to log in using keys on
 $ hostname
 data.ccammack.com
 
-$ ssh -i /tmp/zxfer_key freebsd@192.168.1.137
+$ ssh -i /tmp/mtree_key freebsd@192.168.1.137
 [...]
 
 freebsd@generic:~ % su
@@ -422,7 +422,7 @@ data.ccammack.com
 $ su
 Password:
 
-root@data:/usr/home/ccammack # ssh -i /tmp/zxfer_key root@192.168.1.137 zfs list -r restore
+root@data:/usr/home/ccammack # ssh -i /tmp/mtree_key root@192.168.1.137 zfs list -r restore
 NAME                                        USED  AVAIL  REFER  MOUNTPOINT
 [...]
 restore/usr/home                            312K  1.56T   240K  /restore/usr/home
@@ -444,7 +444,7 @@ To compare the file systems between hosts, run `mtree` on the remote host over `
 {{< highlight txt >}}
 root@data:/usr/home/ccammack # echo "" >> .cshrc
 
-root@data:/usr/home/ccammack # ssh -i /tmp/zxfer_key root@192.168.1.137 mtree -c -p /restore/usr/home | mtree -p /usr/home
+root@data:/usr/home/ccammack # ssh -i /tmp/mtree_key root@192.168.1.137 mtree -c -p /restore/usr/home | mtree -p /usr/home
 [...]
 ccammack/.cshrc:
         size (1054, 1055)
@@ -465,7 +465,7 @@ To verify the entire backup, write a script to iterate the datasets in the *rest
 # pipe it to mtree running against the "zroot" pool to compare them
 
 # uncomment the next line if the "restore" pool is on a remote system
-#sshcmd="ssh -i /tmp/zxfer_key root@192.168.1.137"
+#sshcmd="ssh -i /tmp/mtree_key root@192.168.1.137"
 sshcmd=${sshcmd-""} # set sshcmd="" if not already assigned
 
 # exit immediately if you're not root

@@ -75,7 +75,9 @@ Use smartctl -X to abort test.
 The software estimates and reports how long it will take to run as it begins.  Use `smartctl -a` to keep an eye on its progress.
 
 {{< highlight txt >}}
-# smartctl -a /dev/ada3 | grep remaining
+# smartctl -a /dev/ada3 | grep -A 1 'Self.*status'
+
+Self-test execution status:      ( 249) Self-test routine in progress...
                                         90% of test remaining.
 {{< /highlight >}}
 
