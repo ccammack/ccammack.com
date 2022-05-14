@@ -1,5 +1,5 @@
 ---
-title: "Verify Backups Using zxfer and mtree"
+title: "Verify ZFS Backups Using zxfer and mtree"
 date: 2022-05-07T15:54:03-07:00
 tags: ["Backups", "FreeBSD", "Linux", "mtree", "Raspberry Pi", "zxfer", "ZFS"]
 ---
