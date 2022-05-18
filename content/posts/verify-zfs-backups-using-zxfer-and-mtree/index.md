@@ -17,7 +17,7 @@ then verify it by moving a spare hard drive between the *backup* server and the 
 However, it is also possible to perform both operations over the network using an intermediate host.
 To do this, add a temporary Raspberry Pi to the network with a spare hard drive attached,
 restore the data from the *backup* server to the Pi using `zxfer` over `ssh`,
-then run `mtree` on both machines over `ssh` to compare the restored data to the original data on the server.
+then run `mtree` on the Pi and the original *data* server to compare the restored data to the original data.
 Afterwards, remove the Pi from the network, wipe the spare drive and everything goes back to the way it was.
 
 ##### Create a destination zpool to hold the restored data
@@ -81,7 +81,7 @@ Plug the destination drive directly into a SATA port if possible; external USB d
 If the *backup* pool contains data from multiple hosts, use `zfs list | grep` to find the right one; in this case,
 I'm restoring the *zroot* pool from the *data* server, which is stored on the backup drive as `/backup/data/zroot/`.
 
-Include a trailing `/` on the *source* pool when restoring with `zxfer` to make the output file hierarchy under `/restore/` match the one under `/backup/data/zroot/`.
+Include a trailing `/` on the *source* pool when restoring with `zxfer` to make the output file hierarchy under `/restore/` parallel the one under `/backup/data/zroot/`.
 
 Export the *restore* pool when finished to prepare for the `mtree` step.
 
@@ -236,7 +236,7 @@ On the *backup* server, `su` to *root* and use `zxfer` to push the backup data t
 
 Make sure the correct source pool is chosen with `zfs list | grep`.
 
-Include a trailing `/` on the *source* pool when restoring with `zxfer` to make the output file hierarchy under `/restore/` match the one under `/backup/data/zroot/`.
+Include a trailing `/` on the *source* pool when restoring with `zxfer` to make the output file hierarchy under `/restore/` parallel the one under `/backup/data/zroot/`.
 
 {{< highlight txt >}}
 $ hostname
