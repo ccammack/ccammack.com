@@ -17,12 +17,12 @@ then verify it by moving a spare hard drive between the *backup* server and the 
 However, it is also possible to perform both operations over the network using an intermediate host.
 To do this, add a temporary Raspberry Pi to the network with a spare hard drive attached,
 restore the data from the *backup* server to the Pi using `zxfer` over `ssh`,
-then run `mtree` on the Pi and the original *data* server to compare the restored data to the original data.
+then run `mtree` on the Pi and on the original *data* server to compare the restored data to the original data.
 Afterwards, remove the Pi from the network, wipe the spare drive and everything goes back to the way it was.
 
 ##### Create a destination zpool to hold the restored data
 
-Attach a spare empty drive to the system and create a destination zpool named *restore*, then `export` it from the system for the next step.
+To create a temporary location to hold the restored data, attach a spare empty drive to the system and create a destination zpool named *restore*, then `export` it from the system for the next step.
 
 {{< highlight txt >}}
 C:\Users\ccammack
@@ -86,11 +86,11 @@ Include a trailing `/` on the *source* pool when restoring with `zxfer` to make 
 Export the *restore* pool when finished to prepare for the `mtree` step.
 
 {{< highlight txt >}}
+$ hostname
+backup.ccammack.com
+
 $ su
 Password:
-
-root@backup:/usr/home/ccammack # hostname
-backup.ccammack.com
 
 root@backup:/usr/home/ccammack # zpool import restore
 
@@ -144,7 +144,7 @@ This example shows how to push the restored data from the *backup* server to a t
 The [FreeBSD 13.1 image for RPI](https://download.freebsd.org/ftp/releases/arm64/aarch64/ISO-IMAGES/) includes default credentials, so it requires very little additional setup.
 The only change required on the *backup* server will be to create a *new temporary key pair* to access the Pi, which can then be deleted afterwards.
 
-To get started, log into the *backup* server, generate *new temporary keys* and transfer the public key to the Pi using the default user account `freebsd` and password `freebsd`.
+After installing FreeBSD on the Pi and plugging it into the LAN, log into the *backup* server, generate *new temporary keys* and transfer the public key to the Pi using the default user account `freebsd` and password `freebsd`.
 
 {{< highlight txt >}}
 C:\Users\ccammack
