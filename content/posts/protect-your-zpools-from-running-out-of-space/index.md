@@ -23,7 +23,7 @@ always have space left this way.
                 -- Benedict Reuschling [...]
 {{< /highlight >}}
 
-Easy.
+Easy. Use `zfs create` to reserve the space.
 
 {{< highlight txt >}}
 $ su
@@ -40,5 +40,11 @@ Broken pipe
 
 # zfs create -o refreservation=185G backup/reserved
 {{< /highlight >}}
-	
+
+In case of emergency, use `zfs set` to reclaim the space.
+
+{{< highlight txt >}}
+# zfs set refreservation=1G backup/reserved
+{{< /highlight >}}
+
 Thanks, Benedict.

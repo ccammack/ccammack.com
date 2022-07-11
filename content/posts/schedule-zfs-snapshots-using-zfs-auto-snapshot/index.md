@@ -96,7 +96,9 @@ for datasets that can be easily recreated if needed and for those for which old 
 * /var/run
 * /var/tmp
 
-After disabling snapshots for the non-essential descendants, some of which might not exist, enable them for **zroot**.
+I also disable snapshots on `/zroot/iocage/images`.
+
+After disabling snapshots for the non-essential datasets, some of which might not exist, enable them for **zroot**.
 
 {{< highlight txt >}}
 # zpool list
@@ -121,11 +123,14 @@ zroot/ROOT/default                       4.01G  3.50T  4.01G  /
 # zfs set com.sun:auto-snapshot=false zroot/var/run
 # zfs set com.sun:auto-snapshot=false zroot/var/tmp
 
+# zfs set com.sun:auto-snapshot=false zroot/iocage/images
+
 # zfs set com.sun:auto-snapshot=true zroot
 
 # zfs get com.sun:auto-snapshot
 NAME                PROPERTY               VALUE    SOURCE
 zroot               com.sun:auto-snapshot  true     local
+zroot/iocage/images com.sun:auto-snapshot  false    local
 zroot/ROOT          com.sun:auto-snapshot  true     inherited from zroot
 zroot/ROOT/default  com.sun:auto-snapshot  true     inherited from zroot
 zroot/tmp           com.sun:auto-snapshot  false    local

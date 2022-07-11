@@ -40,7 +40,10 @@ media: vnet requires defaultrouter, using 192.168.0.1
 Inside the jail, use `pkg search` to find the latest version of Samba.
 
 {{< highlight txt >}}
-# iocage exec media pkg search samba
+# iocage console media
+[...]
+
+root@media:~ # pkg search samba
 The package management tool is not yet installed on your system.
 Do you want to fetch and install it now? [y/N]: y
 Bootstrapping pkg from pkg+http://pkg.FreeBSD.org/FreeBSD:12:amd64/quarterly, please wait...
@@ -58,7 +61,7 @@ samba48-4.8.12_4               Free SMB/CIFS and AD/DC server and client for Uni
 Samba **4.10.8** seems to be the latest package, so use `pkg install` to install it.
 
 {{< highlight txt >}}
-# iocage exec media pkg install -y samba410
+root@media:~ # pkg install -y samba410
 Updating FreeBSD repository catalogue...
 FreeBSD repository is up to date.
 All repositories are up to date.
@@ -94,9 +97,9 @@ Samba configuration is notoriously confusing. For this example, I want to achiev
 Create a user account for Samba access and assign it a password.
 
 {{< highlight txt >}}
-# pw useradd -n ccammack -m -s /bin/sh -G wheel
+root@media:~ # pw useradd -n ccammack -m -s /bin/sh -G wheel
 
-# passwd ccammack
+root@media:~ # passwd ccammack
 Changing local password for ccammack
 New Password:
 Retype New Password:
@@ -105,15 +108,15 @@ Retype New Password:
 Create the folder you intend to share, along with an extra folder and file for testing, then change their owner to the Samba user.
 
 {{< highlight txt >}}
-# iocage exec media mkdir -p /home/ccammack/media/test
-# iocage exec media touch /home/ccammack/media/test/test.txt
-# iocage exec media chown -R ccammack:ccammack /home/ccammack/media
+root@media:~ # mkdir -p /home/ccammack/media/test
+root@media:~ # touch /home/ccammack/media/test/test.txt
+root@media:~ # chown -R ccammack:ccammack /home/ccammack/media
 {{< /highlight >}}
 
 Use `ifconfig` to get the name of the jail's interface, which is **epair0b** in this case.
 
 {{< highlight txt >}}
-# iocage exec media ifconfig
+root@media:~ # ifconfig
 lo0: flags=8049<UP,LOOPBACK,RUNNING,MULTICAST> metric 0 mtu 16384
         options=680003<RXCSUM,TXCSUM,LINKSTATE,RXCSUM_IPV6,TXCSUM_IPV6>
         inet6 ::1 prefixlen 128
@@ -133,13 +136,13 @@ epair0b: flags=8843<UP,BROADCAST,RUNNING,SIMPLEX,MULTICAST> metric 0 mtu 1500
         nd6 options=21<PERFORMNUD,AUTO_LINKLOCAL>
 {{< /highlight >}}
 
-Inside the jail, create the samba config file (**/usr/local/etc/smb4.conf**) using `ee` or `vi`.
+Create the samba config file (**/usr/local/etc/smb4.conf**) using `ee` or `vi`.
 
 {{< highlight txt >}}
-# iocage exec media ee /usr/local/etc/smb4.conf
+root@media:~ # ee /usr/local/etc/smb4.conf
 [...]
 
-# iocage exec media cat /usr/local/etc/smb4.conf
+root@media:~ # cat /usr/local/etc/smb4.conf
 [global]
 workgroup = WORKGROUP
 netbios name = MEDIA
@@ -162,7 +165,7 @@ path = /home/ccammack/media
 Use `pdbedit` to map the user account and password to the Samba database.
 
 {{< highlight txt >}}
-# iocage exec media pdbedit --create --user=ccammack
+root@media:~ # pdbedit --create --user=ccammack
 new password:
 retype new password:
 Unix username:        ccammack
@@ -193,10 +196,10 @@ Logon hours         : FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
 Use `sysrc` to add `samba_server_enable=YES` to the jail's **rc.conf** and start the samba server immediately.
 
 {{< highlight txt >}}
-# iocage exec media sysrc samba_server_enable=YES
+root@media:~ # sysrc samba_server_enable=YES
 samba_server_enable:  -> YES
 
-# iocage exec media service samba_server start
+root@media:~ # service samba_server start
 Performing sanity check on Samba configuration: OK
 Starting nmbd.
 Starting smbd.
@@ -211,10 +214,10 @@ With the current Samba configuration, the user cannot make any changes to the **
 To allow changes inside the **\\\\MEDIA\\media** folder, edit the configuration file again, uncomment the line at the bottom that says **#writable = yes** and restart Samba.
 
 {{< highlight txt >}}
-# iocage exec media ee /usr/local/etc/smb4.conf
+root@media:~ # ee /usr/local/etc/smb4.conf
 [...]
 
-# iocage exec media cat /usr/local/etc/smb4.conf
+root@media:~ # cat /usr/local/etc/smb4.conf
 [global]
 workgroup = WORKGROUP
 netbios name = MEDIA
@@ -233,7 +236,7 @@ writable = no
 path = /home/ccammack/media
 writable = yes
 
-# iocage exec media service samba_server restart
+root@media:~ # service samba_server restart
 Performing sanity check on Samba configuration: OK
 Stopping smbd.
 Waiting for PIDS: 5906.
