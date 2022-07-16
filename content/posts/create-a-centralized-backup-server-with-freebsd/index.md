@@ -11,6 +11,18 @@ install a 5.25" to 3.5" hot swap bay in an old machine and centralize the backup
 
 ##### Introduction
 
+> 2022-07-16 Update: This approach also works in FreeBSD 13.1,
+but requires a minor change to the `zxfer` script after installation to ignore some new ZFS properties.
+I'll eventually post an updated version of this backup system now that I have been using it several years
+and have some revisions in mind.
+{{< highlight txt >}}
+$ diff /usr/local/sbin/zxfer.old /usr/local/sbin/zxfer
+181c181
+< userrefs"
+---
+> userrefs,objsetid,keylocation,keyformat,pbkdf2iters,special_small_blocks"
+{{< /highlight >}}
+
 This post explains how to set up a small FreeBSD backup server such that inserting a removable hard drive will automatically begin the daily backup process.
 After the backup finishes early the next morning, the system will automatically dismount the removable drive so it can quickly be swapped for another one.
 
