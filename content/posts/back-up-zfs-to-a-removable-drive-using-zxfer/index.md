@@ -10,6 +10,16 @@ and store them off-site to create a reliable and inexpensive backup solution.
 
 <!--more-->
 
+> 2022-07-16 Update: This approach also works in FreeBSD 13.1,
+but requires a minor change to the `zxfer` script after installation to ignore some new ZFS properties.
+{{< highlight txt >}}
+$ diff /usr/local/sbin/zxfer.old /usr/local/sbin/zxfer
+181c181
+< userrefs"
+---
+> userrefs,objsetid,keylocation,keyformat,pbkdf2iters,special_small_blocks"
+{{< /highlight >}}
+
 This example assumes that the system generates snapshots using [`zfs-auto-snapshot`](/posts/schedule-zfs-snapshots-using-zfs-auto-snapshot/) and it will not work properly without them.
 It also assumes that the backup partition will be GELI-encrypted, which is wise for backups stored at an off-site location.
 Finally, it assumes that the backup target will be a ZFS pool.
