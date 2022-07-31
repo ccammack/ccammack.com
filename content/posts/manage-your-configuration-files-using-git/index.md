@@ -19,11 +19,11 @@ C:\Users\ccammack
 λ cd %USERPROFILE%
 
 C:\Users\ccammack
-λ git init --bare .dot-all
-Initialized empty Git repository in C:/Users/ccammack/.dot-all/
+λ git init --bare .dot-all.git
+Initialized empty Git repository in C:/Users/ccammack/.dot-all.git/
 
 C:\Users\ccammack
-λ ls .dot-all\
+λ ls .dot-all.git\
 config  description  HEAD  hooks/  info/  objects/  refs/
 {{< /highlight >}}
 
@@ -38,12 +38,12 @@ For example, to run `git` commands on the bare `.dot-all` repo, create a git ali
 
 {{< highlight txt >}}
 C:\Users\ccammack
-λ git config --global --replace-all alias.dot-all "!git --git-dir=C:\\Users\\ccammack\\.dot-all --work-tree=C:\\Users\\ccammack"
+λ git config --global --replace-all alias.dot-all "!git --git-dir=C:\\Users\\ccammack\\.dot-all.git --work-tree=C:\\Users\\ccammack"
 
 C:\Users\ccammack
 λ git config --global --list
 [...]
-alias.dot-all=!git --git-dir=C:\\Users\\ccammack\\.dot-all --work-tree=C:\\Users\\ccammack
+alias.dot-all=!git --git-dir=C:\\Users\\ccammack\\.dot-all.git --work-tree=C:\\Users\\ccammack
 {{< /highlight >}}
 
 Now, to operate on files managed by the `.dot-all` repo, use `git dot-all` rather than `git.`
@@ -122,25 +122,25 @@ C:\Users\ccammack
 
 ---
 
-To replicate the shared configuration onto another machine, `git clone` the repo using the `--bare` option, set up the global `dot-all` git alias and locally disable `showUntrackedFiles`.
+To replicate the shared configuration onto another machine, `git clone` the repo using the `--bare` option, set up the global `dot-all` git alias and disable `showUntrackedFiles`.
 
 For example, the following commands replicate the `.dot-all` repo and its files onto an Ubuntu desktop machine.
 
 {{< highlight txt >}}
 ccammack@ubuntu:~$ cd $HOME
 
-ccammack@ubuntu:~$ git clone --bare http://git.ccammack.com:3000/ccammack/dot-all.git $HOME/.dot-all
-Cloning into bare repository '/home/ccammack/.dot-all'...
+ccammack@ubuntu:~$ git clone --bare http://git.ccammack.com:3000/ccammack/dot-all.git $HOME/.dot-all.git
+Cloning into bare repository '/home/ccammack/.dot-all.git'...
 remote: Enumerating objects: 6, done.
 remote: Counting objects: 100% (6/6), done.
 remote: Compressing objects: 100% (5/5), done.
 remote: Total 6 (delta 0), reused 0 (delta 0), pack-reused 0
 Unpacking objects: 100% (6/6), 6.17 KiB | 6.17 MiB/s, done.
 
-ccammack@ubuntu:~$ git config --global --replace-all alias.dot-all '!git --git-dir=$HOME/.dot-all --work-tree=$HOME'
+ccammack@ubuntu:~$ git config --global --replace-all alias.dot-all '!git --git-dir=$HOME/.dot-all.git --work-tree=$HOME'
 
 ccammack@ubuntu:~$ git config --global --list
-alias.dot-all=!git --git-dir=$HOME/.dot-all --work-tree=$HOME
+alias.dot-all=!git --git-dir=$HOME/.dot-all.git --work-tree=$HOME
 
 ccammack@ubuntu:~$ git dot-all config --local status.showUntrackedFiles no
 
