@@ -1228,7 +1228,8 @@ scrub_wait() {
   results=$(zpool status backup | \
             sed -n 's/^.*scan: scrub repaired *//p' | \
             sed -n 's/ *in .*with */;/p' | \
-            sed -n 's/ *errors on .*$//p')
+            sed -n 's/ *errors on .*$//p' | \
+            tr -d 'A-Z')
   repaired=$(echo "$results" | cut -d ';' -f1)
   errors=$(echo "$results" | cut -d ';' -f2)
   if [ "$repaired" -eq 0 ] && [ "$errors" -eq 0 ]; then
