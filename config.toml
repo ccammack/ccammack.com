@@ -1,5 +1,5 @@
 baseURL = "https://www.ccammack.com"
-title = "Chris Cammack"
+title = "Chris Cammack's Mostly FreeBSD Notes"
 
 # for smart copyright line, leave this blank and check [params.copyright]
 copyright = ""
