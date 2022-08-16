@@ -120,7 +120,8 @@ LABEL 0
 This conflict happens because ZFS stores two copies of its metadata in the first 512K of each device and two copies in the last 512K of each device,
 and since those areas are not overwritten when repartitioning, new pools may conflict with the leftover metadata from the old ones if they are assigned the same names.
 
-It's easy to fix: use `zpool labelclear` to wipe out the metadata on the older device and check it again with `zdb` to see that all four areas have been cleared.
+Don't do this on a data drive you care about unless you have good backups, but it's easy to fix:
+use `zpool labelclear` to wipe out the metadata on the older device and check it again with `zdb` to see that all four areas have been cleared.
 
 {{< highlight txt >}}
 # zpool labelclear -f /dev/gpt/backup
