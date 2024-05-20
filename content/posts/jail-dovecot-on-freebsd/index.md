@@ -94,8 +94,8 @@ You must create the configuration files yourself. Copy them over
 As explained in the installation notes, the default configuration will *authenticate users against the system's passwd file*.
 Create a new user account in the jail to receive the email archive and assign it a temporary password.
 
-> The next section explains how to configure Dovecot using plaintext authentication,
-so the chosen password will be sent in the clear until the configuration is properly secured.
+> The section after this one explains how to configure Dovecot using plaintext authentication,
+so the chosen password will be sent over the LAN in the clear until the configuration is properly secured.
 Consider using a temporary password for the initial configuration and change it to a better one after securing the connection.
 In any case, avoid reusing existing passwords.
 
@@ -108,7 +108,7 @@ New Password:
 Retype New Password:
 {{< /highlight >}}
 
-Next, copy the example configuration files to `/usr/local/etc/dovecot` and add `dovecot_enable="YES"` to `/etc/rc.conf`.
+Next, follow the installation notes to copy the example configuration files to `/usr/local/etc/dovecot` and add `dovecot_enable="YES"` to `/etc/rc.conf`.
 
 {{< highlight txt >}}
 root@imap:~ # cp -R /usr/local/etc/dovecot/example-config/* /usr/local/etc/dovecot
@@ -121,12 +121,15 @@ root@imap:~ # cat /etc/rc.conf
 dovecot_enable="YES"
 {{< /highlight >}}
 
-Use `doveconf -a | more` to display the current Dovecot configuration settings.
+Use `doveconf` to display the current version and configuration settings,
+then change into the configuration directory.
 
 {{< highlight txt >}}
-root@imap:~ # doveconf -a | more
+root@imap:~ # doveconf | head -1
 # 2.3.21 (47349e2482): /usr/local/etc/dovecot/dovecot.conf
-[...]
+
+root@imap:~ # cd /usr/local/etc/dovecot/conf.d
+root@imap:/usr/local/etc/dovecot/conf.d #
 {{< /highlight >}}
 
 The installation notes indicate that Dovecot will store the email for each user in
@@ -134,15 +137,12 @@ an [mbox](https://en.wikipedia.org/wiki/Mbox) file named `/var/mail/$USER` by de
 if the `mail_location` variable is not defined.
 
 {{< highlight txt >}}
-root@imap:~ # doveconf -a | grep mail_location
+root@imap:/usr/local/etc/dovecot/conf.d # doveconf mail_location
 mail_location =
 
-root@imap:~ # grep mail_location /usr/local/etc/dovecot/conf.d/*
-[...]
-/usr/local/etc/dovecot/conf.d/10-mail.conf:#mail_location =
-[...]
+root@imap:/usr/local/etc/dovecot/conf.d # grep ^mail_location *
+10-mail.conf:mail_location =
 {{< /highlight >}}
-
 
 Dovecot also supports the
 [Maildir++](https://doc.dovecot.org/admin_manual/mailbox_formats/maildir/#directory-structure) directory layout,
@@ -151,30 +151,28 @@ Set `mail_location = maildir:~/Maildir` in the `10-mail.conf` file
 to store email in a per-user `~/Maildir` directory.
 
 {{< highlight txt >}}
-root@imap:~ # ee /usr/local/etc/dovecot/conf.d/10-mail.conf
+root@imap:/usr/local/etc/dovecot/conf.d # ee 10-mail.conf
 [...]
 
-root@imap:~ # doveconf -a | grep mail_location
-mail_location = maildir:~/Maildir
+root@imap:/usr/local/etc/dovecot/conf.d # grep ^mail_location *
+10-mail.conf:mail_location = maildir:~/Maildir
 {{< /highlight >}}
 
 ---
 
 ##### Configure Plaintext IMAP Connections
 
-
-
 Check the `protocols` configuration variable and note that the default list includes `imap`, which is the traditional unencrypted protocol.
 
 {{< highlight txt >}}
-root@imap:~ # doveconf -a | grep protocols
+root@imap:/usr/local/etc/dovecot/conf.d # doveconf protocols
 protocols = imap pop3 lmtp
 {{< /highlight >}}
 
 To verify that the unencrypted `imap` protocol uses port 143 by default, check the configuration values for `inet_listener imap`.
 
 {{< highlight txt >}}
-root@imap:~ # doveconf -a | grep -A7 "inet_listener imap"
+root@imap:/usr/local/etc/dovecot/conf.d # doveconf -a | grep -A7 "inet_listener imap"
   inet_listener imap {
     address =
     haproxy = no
@@ -188,7 +186,7 @@ root@imap:~ # doveconf -a | grep -A7 "inet_listener imap"
 The default configuration values look reasonable, so try starting the `dovecot` service.
 
 {{< highlight txt >}}
-root@imap:~ # service dovecot start
+root@imap:/usr/local/etc/dovecot/conf.d # service dovecot start
 Starting dovecot.
 doveconf: Fatal: Error in configuration file /usr/local/etc/dovecot/conf.d/10-ssl.conf line 12: ssl_cert: Can't open file /etc/ssl/certs/dovecot.pem: No such file or directory
 /usr/local/etc/rc.d/dovecot: WARNING: failed to start dovecot
@@ -201,10 +199,10 @@ The [Dovecot documentation](https://doc.dovecot.org/admin_manual/ssl/certificate
 For the moment, disable the need for those missing files by editing `10-ssl.conf` to comment out the lines for `ssl_cert` and `ssl_key` on lines 12 and 13.
 
 {{< highlight txt >}}
-root@imap:~ # ee /usr/local/etc/dovecot/conf.d/10-ssl.conf
+root@imap:/usr/local/etc/dovecot/conf.d # ee 10-ssl.conf
 [...]
 
-root@imap:~ # grep dovecot.pem /usr/local/etc/dovecot/conf.d/10-ssl.conf
+root@imap:/usr/local/etc/dovecot/conf.d # grep dovecot.pem 10-ssl.conf
 #ssl_cert = </etc/ssl/certs/dovecot.pem
 #ssl_key = </etc/ssl/private/dovecot.pem
 {{< /highlight >}}
@@ -214,35 +212,31 @@ by checking the configuration values for `auth_mechanisms` and `disable_plaintex
 which appears in the file `10-auth.conf`.
 
 {{< highlight txt >}}
-root@imap:~ # doveconf -a | grep auth_mechanisms
+root@imap:/usr/local/etc/dovecot/conf.d # doveconf auth_mechanisms
 auth_mechanisms = plain
 
-root@imap:~ # doveconf -a | grep disable_plaintext_auth
+root@imap:/usr/local/etc/dovecot/conf.d # doveconf disable_plaintext_auth
 disable_plaintext_auth = yes
 
-root@imap:~ # grep disable_plaintext_auth /usr/local/etc/dovecot/conf.d/*
-/usr/local/etc/dovecot/conf.d/10-auth.conf:#disable_plaintext_auth = yes
-[...]
+root@imap:/usr/local/etc/dovecot/conf.d # grep ^disable_plaintext_auth *
+10-auth.conf:disable_plaintext_auth = yes
+
 {{< /highlight >}}
 
 In my case, I had to edit `10-auth.conf` and set `disable_plaintext_auth = no` to allow plain text authentication.
 
 {{< highlight txt >}}
-root@imap:~ # ee /usr/local/etc/dovecot/conf.d/10-auth.conf
+root@imap:/usr/local/etc/dovecot/conf.d # ee 10-auth.conf
 [...]
 
-root@imap:~ # grep disable_plaintext_auth /usr/local/etc/dovecot/conf.d/*
-/usr/local/etc/dovecot/conf.d/10-auth.conf:disable_plaintext_auth = no
-[...]
-
-root@imap:~ # doveconf -a | grep disable_plaintext_auth
-disable_plaintext_auth = no
+root@imap:/usr/local/etc/dovecot/conf.d # grep ^disable_plaintext_auth *
+10-auth.conf:disable_plaintext_auth = no
 {{< /highlight >}}
 
 Try starting `dovecot` again, successfully this time.
 
 {{< highlight txt >}}
-root@imap:~ # service dovecot start
+root@imap:/usr/local/etc/dovecot/conf.d # service dovecot start
 Starting dovecot.
 {{< /highlight >}}
 
@@ -293,7 +287,7 @@ Enter host password for user 'ccammack':
 On the server, check the Dovecot log for errors using `tail /var/log/maillog`.
 
 {{< highlight txt >}}
-root@imap:~ # tail /var/log/maillog
+root@imap:/usr/local/etc/dovecot/conf.d # tail /var/log/maillog
 [...]
 May 19 14:37:05 imap dovecot[77310]: imap-login: Login: user=<ccammack>, method=PLAIN, rip=192.168.1.100, lip=192.168.1.165, mpid=77326, session=<d+Ub39IYemjAqAFk>
 May 19 14:37:05 imap dovecot[77310]: imap(ccammack)<77326><d+Ub39IYemjAqAFk>: Disconnected: Logged out in=27 out=576 deleted=0 expunged=0 trashed=0 hdr_count=0 hdr_bytes=0 body_count=0 body_bytes=0
