@@ -146,7 +146,7 @@ root@imap:~ # grep mail_location /usr/local/etc/dovecot/conf.d/*
 
 Dovecot also supports the
 [Maildir++](https://doc.dovecot.org/admin_manual/mailbox_formats/maildir/#directory-structure) directory layout,
-which is a better option for storage.
+which is a much better option for storage.
 Set `mail_location = maildir:~/Maildir` in the `10-mail.conf` file
 to store email in a per-user `~/Maildir` directory.
 
@@ -268,7 +268,7 @@ Approximate round trip times in milli-seconds:
     Minimum = 0ms, Maximum = 0ms, Average = 0ms
 {{< /highlight >}}
 
-Next, try to log into the server using `curl` with plain text authentication.
+Next, try to log into the server using `curl`.
 
 {{< highlight txt >}}
 C:\Users\ccammack
@@ -299,9 +299,7 @@ May 19 14:37:05 imap dovecot[77310]: imap-login: Login: user=<ccammack>, method=
 May 19 14:37:05 imap dovecot[77310]: imap(ccammack)<77326><d+Ub39IYemjAqAFk>: Disconnected: Logged out in=27 out=576 deleted=0 expunged=0 trashed=0 hdr_count=0 hdr_bytes=0 body_count=0 body_bytes=0
 {{< /highlight >}}
 
-If the connection works, it should now be possible to configure the IMAP settings in a local email client to communicate with Dovecot.
-Some applications also expect one to configure an *outgoing SMTP server* when configuring the *incoming IMAP* server,
-but entering spaces or dummy values for the *outgoing server* should allow one to skip those parts.
+If the connection works, it should now be possible to add the IMAP server to an email client and move messages to it over the LAN.
 
 {{< figure src="configure-email-client-imap-settings.1.png" alt="Configure Windows Live Mail Client IMAP Settings Step 1">}}
 {{< figure src="configure-email-client-imap-settings.2.png" alt="Configure Windows Live Mail Client IMAP Settings Step 2">}}
