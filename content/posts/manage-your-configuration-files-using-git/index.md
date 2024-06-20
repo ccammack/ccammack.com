@@ -9,6 +9,9 @@ but I think the simplest might be to just use a [bare git repository](https://ww
 
 <!--more-->
 
+> 2024-06-20 Update: I started using [chezmoi](https://www.chezmoi.io/) a few months ago and have been very satisfied with it.
+Check the [comparison table](https://www.chezmoi.io/comparison-table/) to see some of the tradeoffs between popular methods.
+
 This approach is easy to set up, requires no additional tools beyond `git` and allows any file below the user's home directory to be tracked.
 
 For example, to share my emacs config between Windows and Linux, I created a bare git repo called `.dot-all`, which I use to manage any configuration that is to be shared between platforms.
